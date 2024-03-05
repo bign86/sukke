@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sukke/db.dart';
 
 
@@ -61,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(8),
         children: [
           const SizedBox(height: 10),
-          Row(
+          /*Row(
             children: [
               const Expanded(
                 flex: 1,
@@ -78,12 +79,29 @@ class _SettingsPageState extends State<SettingsPage> {
                   onSubmitted: (String value) {
                     updateEmail(value);
                   },
-                  autofocus: true,
+                  autofocus: false,
                   autocorrect: false,
                   keyboardType: TextInputType.emailAddress,
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),*/
+          Center(
+            child: TextButton.icon(
+              onPressed: () async {
+                final db = await DBService().db;
+                Share.shareXFiles(
+                    [XFile(db.path)],
+                    subject: 'Backup Sukke',
+                    text: 'Allegato il database di Sukke!'
+                );
+              },
+              icon: const Icon(
+                  Icons.share
+              ),
+              label: const Text('Backup the Database by sharing',),
+            ),
           ),
           const SizedBox(height: 50),
           const Divider(
@@ -107,10 +125,10 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<Null> updateEmail(String? text) async {
+  /*Future<Null> updateEmail(String? text) async {
     final db = await DBService().db;
     const query = 'UPDATE [System] SET [valueText] = ?1 WHERE [key] = "userEmail"';
     await db.rawUpdate(query, [text]);
     setState(() {});
-  }
+  }*/
 }

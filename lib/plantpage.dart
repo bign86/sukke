@@ -100,7 +100,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
   Widget plantDetailsPage(Plant? data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 20),
         children: [
           const SizedBox(height: 5),
           Text(
@@ -514,7 +514,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
                     MaterialPageRoute(
                         builder: (context) => TextEditPage(title: 'Innaffiature', text: data.wateringNotes ?? "-")),
                   ).then( (newText) async {
-                    updateTextField(data, 'watering_notes', newText);
+                    updateTextField(data, 'wateringNotes', newText);
                   });
                 },
               ),

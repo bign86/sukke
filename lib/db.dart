@@ -15,6 +15,9 @@ class DBService {
 
   // Members
   Database? _database;
+  String? _path;
+
+  String? path() => _path;
 
   Future<Database> get db async {
     if (_database != null) {
@@ -29,6 +32,7 @@ class DBService {
   Future<Database> _initDB() async {
     final path = join(await getDatabasesPath(), "plants.db");
     final exists = await databaseExists(path);
+    _path = path;
     //print(path);
 
     if (!exists) {

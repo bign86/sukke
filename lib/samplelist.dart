@@ -164,7 +164,7 @@ class _SampleSummaryTable extends State<SampleSummaryTable> {
   Widget summaryTable(List<SampleListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
         children: data.map((sample) => summaryRow(sample)).toList(),
       ),
     );

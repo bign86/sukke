@@ -15,6 +15,7 @@ class PlantSummaryPage extends StatefulWidget {
 }
 
 class _PlantSummaryPageState extends State<PlantSummaryPage> {
+  Key plantSummaryPageKey = UniqueKey();
   Future<List<PlantListItem>> samples = fetchPlants();
   static Map<String, dynamic> newAnagraphicalMap = {
     'family': '', 'genus': '', 'species': '', 'variant': null,
@@ -43,6 +44,7 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
                 if (newFields != null) {
                   if (newFields.isNotEmpty) {
                     newPlantToDB(newFields);
+                    setState(() {plantSummaryPageKey = UniqueKey();});
                   }
                 }
               });
@@ -52,6 +54,7 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
       ),
       body: Center(
         child: Column(
+          key: plantSummaryPageKey,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 8),
@@ -109,7 +112,7 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
   Widget summaryTable(List<PlantListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
         children: data.map((plant) => summaryRow(plant)).toList(),
       ),
     );
@@ -157,24 +160,21 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
 
     Map<String, dynamic> data = Map.of(newAnagraphicalMap)..addAll(newFields);
     String newPlantQuery = '''
-    UPDATE [Plant] SET
-    [family] = "${data['family']}",
-    [genus] = "${data['genus']}",
-    [species] = "${data['species']}",
-    [variant] = "${data['variant']}",
-    [synonyms] = ?1,
-    [countries] = ?2,
-    [cultivar] = ${data['cultivar'] ? 1 : 0},
-    [commonName] = "${data['commonName']}",
-    [growthRate] = ${data['growthRate'].value},
-    [dormantSeason] = ${data['dormantSeason'].value},
-    [TMin] = ${data['TMin']}, 
-    [wateringNeeds] = ${data['wateringNeeds'].value},
-    [lightNeeds] = ${data['lightNeeds'].value}
-    WHERE [id] = ?3;
+    INSERT INTO [Plant]
+    ([id], [family], [genus], [species], [variant], [synonyms],
+    [countries], [cultivar], [commonName], [growthRate], [dormantSeason],
+    [TMin], [wateringNeeds], [lightNeeds])
+    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
     ''';
-    final List arguments = [jsonEncode(data['synonyms']), jsonEncode(data['countries']), id];
-    await db.rawUpdate(newPlantQuery, arguments);
+    final countries = newFields['countries'].map((c) => c.value).toList();
+    final List arguments = <dynamic>[
+      id, data['family'], data['genus'], data['species'], data['variant'],
+      jsonEncode(data['synonyms']), jsonEncode(countries),
+      data['cultivar'] ? 1 : 0, data['commonName'], data['growthRate'].value,
+      data['dormantSeason'].value, data['TMin'], data['wateringNeeds'].value,
+      data['lightNeeds'].value
+    ];
+    await db.rawInsert(newPlantQuery, arguments);
 
     String maxIdQuery = '''
     UPDATE [System] SET [valueNum] = ?1

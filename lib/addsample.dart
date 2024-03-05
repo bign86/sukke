@@ -501,28 +501,29 @@ class _SampleAddPage extends State<SampleAddPage> {
 
     final db = await DBService().db;
     final List<Map> res = await db.rawQuery('SELECT [valueNum] FROM [System] WHERE [key] = "maxIdSample";');
-    final sampleId = res[0]['valueNum'] + 1;
+    final sampleId = (res[0]['valueNum'] as int) + 1;
 
-    String sampleQuery = '''
+    String newSampleQuery = '''
     INSERT INTO [Sample]
     ([id], [plant], [pot], [born], [crested], [variegated],
     [grafted], [monstrous], [bought], [fromSeed], [fromCutting])
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);
     ''';
-    List<dynamic> arguments = <dynamic>[
+    final List<dynamic> arguments = <dynamic>[
       sampleId, newFields['plant'].value, potId, newFields['born'],
       newFields['crested'], newFields['variegated'], newFields['grafted'],
       newFields['monstrous'], newFields['bought'], newFields['fromSeed'],
       newFields['fromCutting']
     ];
-    await db.rawInsert(sampleQuery, arguments);
+    await db.rawInsert(newSampleQuery, arguments);
 
     String maxIdQuery = '''
     UPDATE [System] SET [valueNum] = ?1
     WHERE [key] = "maxIdSample";
     ''';
     await db.rawUpdate(maxIdQuery, [sampleId]);
-    //setState(() {});
+
+    setState(() {});
   }
 
   Future<int> getNewPotId(Map<String, dynamic> newFields) async {

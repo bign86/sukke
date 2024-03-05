@@ -114,7 +114,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
   Widget summaryTable(List<DateListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
         children: data.map((date) => summaryRow(date)).toList(),
       ),
     );

@@ -160,7 +160,7 @@ class _SoilSummaryTable extends State<SoilSummaryTable> {
   Widget summaryTable(List<Soil> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         children: data.map((soil) => summaryRow(soil)).toList(),
       ),
     );

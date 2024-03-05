@@ -272,7 +272,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
             flex: 3,
             child: Switch(
               value: controllers['cultivar'],
-              activeColor: Colors.red,
+              activeColor: Colors.indigo[200],
               onChanged: (bool value) {
                 // This is called when the user toggles the switch.
                 setState(() {
