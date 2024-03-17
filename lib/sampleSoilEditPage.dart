@@ -131,84 +131,84 @@ class _SampleSoilEditPage extends State<SampleSoilEditPage> {
           Expanded(
             flex: 1,
             child: Text(
-              (soil.peat*100).toInt().toString(),
+              soil.peat.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.cactusSoil*100).toInt().toString(),
+              soil.cactusSoil.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.akadama*100).toInt().toString(),
+              soil.akadama.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.coconutFiber*100).toInt().toString(),
+              soil.coconutFiber.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.lapillus*100).toInt().toString(),
+              soil.lapillus.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.pumice*100).toInt().toString(),
+              soil.pumice.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.sand*100).toInt().toString(),
+              soil.sand.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.perlite*100).toInt().toString(),
+              soil.perlite.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.seramis*100).toInt().toString(),
+              soil.seramis.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.gravel*100).toInt().toString(),
+              soil.gravel.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.wormCasting*100).toInt().toString(),
+              soil.wormCasting.toString(),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             flex: 1,
             child: Text(
-              (soil.marl*100).toInt().toString(),
+              soil.marl.toString(),
               textAlign: TextAlign.center,
             ),
           ),

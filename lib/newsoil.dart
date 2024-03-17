@@ -43,10 +43,10 @@ class _NewSoilPageState extends State<NewSoilPage> {
                     )
                 );
               } else {
-                Map<String, double> newSoil = {};
+                Map<String, int> newSoil = {};
                 controllers.forEach((key, value) {
                   if (value > 0) {
-                    newSoil[key] = value/100;
+                    newSoil[key] = value;
                   }
                 });
 

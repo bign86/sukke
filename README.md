@@ -1,16 +1,15 @@
 # sukke
 
-Interfaccia Sukke
+Sukke Interface
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This small app aims at maintain a list of all the plants in my collection.
 
-A few resources to get you started if this is your first Flutter project:
+Features:
+- list of specimens
+- note down cultivation notes and tips
+- note waterings, repots, etc.
+- fully offline usage
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Built with Flutter.

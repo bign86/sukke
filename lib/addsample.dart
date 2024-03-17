@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sukke/db.dart';
 import 'package:sukke/objects/potobj.dart';
 import 'package:sukke/objects/plantobj.dart';
@@ -111,7 +112,7 @@ class _SampleAddPage extends State<SampleAddPage> {
     controllers['plant'] = null;
 
     // Numeric controllers
-    controllers['born'] = 2000;
+    controllers['born'] = DateTime.now().year as int;
     controllers['size'] = 1;
   }
 

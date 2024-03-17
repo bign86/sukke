@@ -2,19 +2,19 @@ import 'package:sukke/db.dart';
 
 class Soil{
   final int id;
-  double peat = 0;
-  double cactusSoil = 0;
-  double akadama = 0;
-  double coconutFiber = 0;
-  double lapillus = 0;
-  double pumice = 0;
-  double sand = 0;
-  double zeolite = 0;
-  double perlite = 0;
-  double seramis = 0;
-  double gravel = 0;
-  double wormCasting = 0;
-  double marl = 0;
+  int peat = 0;
+  int cactusSoil = 0;
+  int akadama = 0;
+  int coconutFiber = 0;
+  int lapillus = 0;
+  int pumice = 0;
+  int sand = 0;
+  int zeolite = 0;
+  int perlite = 0;
+  int seramis = 0;
+  int gravel = 0;
+  int wormCasting = 0;
+  int marl = 0;
 
   Soil({
     required this.id,
@@ -32,21 +32,21 @@ class Soil{
     required this.wormCasting,
     required this.marl,
   }) :
-    assert(peat <= 1.0 && peat >= 0.0),
-    assert(cactusSoil <= 1.0 && cactusSoil >= 0.0),
-    assert(akadama <= 1.0 && akadama >= 0.0),
-    assert(coconutFiber <= 1.0 && coconutFiber >= 0.0),
-    assert(lapillus <= 1.0 && lapillus >= 0.0),
-    assert(pumice <= 1.0 && pumice >= 0.0),
-    assert(sand <= 1.0 && sand >= 0.0),
-    assert(zeolite <= 1.0 && zeolite >= 0.0),
-    assert(perlite <= 1.0 && perlite >= 0.0),
-    assert(seramis <= 1.0 && seramis >= 0.0),
-    assert(gravel <= 1.0 && gravel >= 0.0),
-    assert(wormCasting <= 1.0 && wormCasting >= 0.0),
-    assert(marl <= 1.0 && marl >= 0.0)
+    assert(peat <= 100 && peat >= 0),
+    assert(cactusSoil <= 100 && cactusSoil >= 0),
+    assert(akadama <= 100 && akadama >= 0),
+    assert(coconutFiber <= 100 && coconutFiber >= 0),
+    assert(lapillus <= 100 && lapillus >= 0),
+    assert(pumice <= 100 && pumice >= 0),
+    assert(sand <= 100 && sand >= 0),
+    assert(zeolite <= 100 && zeolite >= 0),
+    assert(perlite <= 100 && perlite >= 0),
+    assert(seramis <= 100 && seramis >= 0),
+    assert(gravel <= 100 && gravel >= 0),
+    assert(wormCasting <= 100 && wormCasting >= 0),
+    assert(marl <= 100 && marl >= 0)
   {
-    double total = 0;
+    int total = 0;
     for (var v in [
       peat, cactusSoil, akadama, coconutFiber, lapillus, pumice,
       sand, zeolite, perlite, seramis, gravel, wormCasting, marl
@@ -54,28 +54,28 @@ class Soil{
       total += v;
     }
 
-    if (total < 0.0 || total > 1.0) {
-      throw RangeError('Total soil amount $total > 1');
+    if (total < 0 || total > 100) {
+      throw RangeError('Total soil amount $total % != 100 %');
     }
   }
 
   Soil.fromMap(Map item):
     id=item["id"],
-    peat=item["peat"]?.toDouble(),
-    cactusSoil=item["cactusSoil"]?.toDouble(),
-    akadama=item["akadama"]?.toDouble(),
-    coconutFiber=item["coconutFiber"]?.toDouble(),
-    lapillus=item["lapillus"]?.toDouble(),
-    pumice=item["pumice"]?.toDouble(),
-    sand=item["sand"]?.toDouble(),
-    zeolite=item["zeolite"]?.toDouble(),
-    perlite=item["perlite"]?.toDouble(),
-    seramis=item["seramis"]?.toDouble(),
-    gravel=item["gravel"]?.toDouble(),
-    wormCasting=item["wormCasting"]?.toDouble(),
-    marl=item["marl"]?.toDouble()
+    peat=item["peat"]?.toInt(),
+    cactusSoil=item["cactusSoil"]?.toInt(),
+    akadama=item["akadama"]?.toInt(),
+    coconutFiber=item["coconutFiber"]?.toInt(),
+    lapillus=item["lapillus"]?.toInt(),
+    pumice=item["pumice"]?.toInt(),
+    sand=item["sand"]?.toInt(),
+    zeolite=item["zeolite"]?.toInt(),
+    perlite=item["perlite"]?.toInt(),
+    seramis=item["seramis"]?.toInt(),
+    gravel=item["gravel"]?.toInt(),
+    wormCasting=item["wormCasting"]?.toInt(),
+    marl=item["marl"]?.toInt()
   {
-    double total = 0;
+    int total = 0;
     for (var v in [
       peat, cactusSoil, akadama, coconutFiber, lapillus, pumice,
       sand, zeolite, perlite, seramis, gravel, wormCasting, marl
@@ -83,8 +83,8 @@ class Soil{
       total += v;
     }
 
-    if (total < 0.0 || total > 1.0) {
-      throw RangeError('Total soil amount $total > 1');
+    if (total < 0 || total > 100) {
+      throw RangeError('Total soil amount $total % != 100 %');
     }
   }
 
@@ -104,8 +104,8 @@ class Soil{
     return 'Soil{id: $id}';
   }
 
-  Map<String, double> getSoilComponents() {
-    final Map<String, double> components = {};
+  Map<String, int> getSoilComponents() {
+    final Map<String, int> components = {};
 
     for (var item in {
       'peat':peat, 'cactusSoil':cactusSoil, 'akadama':akadama,
@@ -120,7 +120,7 @@ class Soil{
   }
 
   List getSortedSoilComponents() {
-    final Map<String, double> components = getSoilComponents();
+    final Map<String, int> components = getSoilComponents();
     var sortedEntries = components.entries.toList()..sort((e1, e2) {
       var diff = e2.value.compareTo(e1.value);
       if (diff == 0) diff = e2.key.compareTo(e1.key);
@@ -159,6 +159,7 @@ class Soil{
   static Future<List<Soil>> fetchSoilList() async {
     final db = await DBService().db;
     final maps = await db.rawQuery(Soil.selectAllQuery);
+    print(maps.map((e) => Soil.fromMap(e)).toList());
     return maps.map((e) => Soil.fromMap(e)).toList();
   }
 }

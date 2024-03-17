@@ -187,7 +187,7 @@ class _SoilSummaryTable extends State<SoilSummaryTable> {
           Expanded(
             flex: 1,
             child: Text(
-              (e.value*100).toInt().toString(),
+              e.value.toString(),
               textAlign: TextAlign.center,
             ),
           ),

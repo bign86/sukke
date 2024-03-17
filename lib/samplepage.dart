@@ -833,9 +833,9 @@ class _SampleMainPageState extends State<SampleMainPage> {
                       soilComponents[index].key)}: ',
                   style: keywordStyle,
                 ),
-                TextSpan(text: (soilComponents[index].value * 100)
-                    .toInt()
-                    .toString(),),
+                TextSpan(
+                  text: soilComponents[index].value.toString(),
+                ),
               ],
             ),
           ),
