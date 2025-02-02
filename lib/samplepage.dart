@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import 'package:sukke/db.dart';
+import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/objects/sampleobj.dart';
+import 'package:sukke/objects/potobj.dart';
 import 'package:sukke/plantpage.dart';
 import 'package:sukke/poteditpage.dart';
 import 'package:sukke/objects/events.dart';
-import 'package:intl/intl.dart';
 import 'package:sukke/sampleeditpage.dart';
 import 'package:sukke/objects/soilobj.dart';
 import 'package:sukke/sampleSoilEditPage.dart';
@@ -23,20 +27,25 @@ class SampleMainPage extends StatefulWidget {
 
 class _SampleMainPageState extends State<SampleMainPage> {
   TextEditingController eventDate = TextEditingController();
-  TextStyle keywordStyle = const TextStyle(fontStyle: FontStyle.italic,);
-  late Soil? soil = null;
+  TextStyle keywordStyle = TextStyle(
+    fontSize: textTheme.bodyMedium?.fontSize,
+    fontStyle: FontStyle.italic,
+  );
+  Soil? soil;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Sample #${widget.id.toString()}',),
+        // title: Text('Sample #${widget.id.toString()}',),
         actions: [
           IconButton(
             icon: const Icon(Icons.remove_circle_outline),
             onPressed: () {
               showDialog<bool>(
+                // Store a local reference to the context
+                // as the async operation might occur after the widget is disposed
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('Attenzione!'),
@@ -57,9 +66,13 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     ),
                   ],
                 ),
-              ).then( (deleted) {
+              ).then((deleted) {
+                // Check if the widget is still mounted before calling setState or Navigator.pop
+                if (!context.mounted) return;
                 if (deleted == true) {
-                  Navigator.pop(context);
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
                 }
               });
             },
@@ -76,7 +89,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
               if (snapshot.hasError) {
                 return const Text('Future creation error'); // error
               } else if (snapshot.hasData) {
-                return sampleDetailsPage(snapshot.data);
+                return sampleDetailsPage(snapshot.data, widget.id);
               } else {
                 return const Text("No data available");
               }
@@ -89,12 +102,12 @@ class _SampleMainPageState extends State<SampleMainPage> {
     );
   }
 
-  Widget sampleDetailsPage(SampleDetails? data) {
+  Widget sampleDetailsPage(SampleDetails? data, int id) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.all(8),
+        padding: padAll10,
         children: [
-          const SizedBox(height: 5),
+          box5,
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -105,32 +118,24 @@ class _SampleMainPageState extends State<SampleMainPage> {
               setState(() {});
             },
             child: Text(
-              '${data?.species ?? data?.commonName} ${data?.variant}',
+              '#$id - ${data?.species ?? data?.commonName} ${data?.variant}',
               textAlign: TextAlign.center,
               softWrap: true,
-              style: const TextStyle(
-                color: Colors.black45,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              style: textTheme.titleMedium,
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Informazioni',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.indigo,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: textTheme.headlineMedium,
               ),
               IconButton(
                 icon: const Icon(
                   Icons.edit,
-                  color: Colors.indigo,
+                  color: COLOR_PRIMARY,
                   size: 15,
                 ),
                 onPressed: () async {
@@ -141,134 +146,278 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     ),
                   ).then(<Map>(newFields) async {
                     if (newFields != null) {
-                      updateSample(newFields);
+                      setState(() {
+                        updateSample(widget.id, newFields);
+                      });
                     }
                   });
                 },
               ),
             ],
           ),
-          const SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Born: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data!.born.toString(),),
-                      ]
-                    )
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Bought: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.bought ? "Yes" : "No",),
-                      ]
-                    )
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'From seed: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.fromSeed ? "Yes" : "No",),
-                      ]
-                    )
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'From cutting: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.fromCutting ? "Yes" : "No",),
-                      ]
-                    )
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Location: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.location,),
-                      ]
-                    )
-                  ),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text.rich(
-                      TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Crested: ',
-                              style: keywordStyle,
-                            ),
-                            TextSpan(text: data.crested ? "Yes" : "No",),
-                          ]
-                      )
-                  ),
-                  Text.rich(
-                      TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Variegated: ',
-                              style: keywordStyle,
-                            ),
-                            TextSpan(text: data.variegated ? "Yes" : "No",),
-                          ]
-                      )
-                  ),
-                  Text.rich(
-                      TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Grafted: ',
-                              style: keywordStyle,
-                            ),
-                            TextSpan(text: data.grafted ? "Yes" : "No",),
-                          ]
-                      )
-                  ),
-                  Text.rich(
-                      TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Monstrous: ',
-                              style: keywordStyle,
-                            ),
-                            TextSpan(text: data.monstrous ? "Yes" : "No",),
-                          ]
-                      )
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
+          box5,
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: padAll12,
+            // decoration: BoxDecoration(
+            //   border: Border.all(color: Colors.black45),
+            //   shape: BoxShape.rectangle,
+            //   borderRadius: const BorderRadius.all(Radius.circular(8),),
+            // ),
+            child: Column(
+              children: [
+                Row(
+                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: Text(
+                        'Born: ',
+                        style: keywordStyle,
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Text(
+                        data!.born.toString(),
+                        style: textTheme.bodyMedium,
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Text(
+                        'Location: ',
+                        style: keywordStyle,
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Text(
+                        data.born.toString(),
+                        style: textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Chip(
+                      label: Text(
+                        'Bought',
+                        style: textTheme.labelMedium
+                      ),
+                      avatar: data.bought ? Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      ) : Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
+                    ),
+                    Chip(
+                      label: Text(
+                        'From seed',
+                        style: textTheme.labelMedium
+                      ),
+                      avatar: data.fromSeed ? Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      ) : Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
+                    ),
+                    Chip(
+                      label: Text(
+                        'From cutting',
+                        style: textTheme.labelMedium
+                      ),
+                      avatar: data.fromCutting ? Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      ) : Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Chip(
+                      label: Text(
+                        'Crested',
+                        style: data.crested ?
+                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
+                          textTheme.labelMedium,
+                      ),
+                      labelPadding: EdgeInsets.zero,
+                      backgroundColor: data.crested ?
+                        Colors.lightGreen[100] : Colors.grey[200],
+                    ),
+                    Chip(
+                      label: Text(
+                        'Variegated',
+                        style: data.variegated ?
+                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
+                          textTheme.labelMedium, //?.copyWith(color: Colors.red[800]),
+                      ),
+                      labelPadding: EdgeInsets.zero,
+                      backgroundColor: data.variegated ?
+                        Colors.lightGreen[100] : Colors.grey[200],
+                    ),
+                    Chip(
+                      label: Text(
+                        'Grafted',
+                        style: data.grafted ?
+                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
+                          textTheme.labelMedium, //?.copyWith(color: Colors.red[800])
+                      ),
+                      labelPadding: EdgeInsets.zero,
+                      backgroundColor: data.grafted ?
+                        Colors.lightGreen[100] : Colors.grey[200],
+                    ),
+                    Chip(
+                      label: Text(
+                        'Monstrous',
+                        style: data.monstrous ?
+                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
+                          textTheme.labelMedium, //?.copyWith(color: Colors.red[800]),
+                      ),
+                      labelPadding: EdgeInsets.zero,
+                      backgroundColor: data.monstrous ?
+                        Colors.lightGreen[100] : Colors.grey[200],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // box5,
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     Column(
+          //       mainAxisAlignment: MainAxisAlignment.start,
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         Text.rich(
+          //           TextSpan(
+          //             children: [
+          //               TextSpan(
+          //                 text: 'Born: ',
+          //                 style: keywordStyle,
+          //               ),
+          //               TextSpan(
+          //                 text: data.born.toString(),
+          //                 style: textTheme.bodyMedium,
+          //               ),
+          //             ]
+          //           )
+          //         ),
+          //         Text.rich(
+          //           TextSpan(
+          //             children: [
+          //               TextSpan(
+          //                 text: 'Bought: ',
+          //                 style: keywordStyle,
+          //               ),
+          //               TextSpan(text: data.bought ? "Yes" : "No",),
+          //             ]
+          //           )
+          //         ),
+          //         Text.rich(
+          //           TextSpan(
+          //             children: [
+          //               TextSpan(
+          //                 text: 'From seed: ',
+          //                 style: keywordStyle,
+          //               ),
+          //               TextSpan(text: data.fromSeed ? "Yes" : "No",),
+          //             ]
+          //           )
+          //         ),
+          //         Text.rich(
+          //           TextSpan(
+          //             children: [
+          //               TextSpan(
+          //                 text: 'From cutting: ',
+          //                 style: keywordStyle,
+          //               ),
+          //               TextSpan(text: data.fromCutting ? "Yes" : "No",),
+          //             ]
+          //           )
+          //         ),
+          //         Text.rich(
+          //           TextSpan(
+          //             children: [
+          //               TextSpan(
+          //                 text: 'Location: ',
+          //                 style: keywordStyle,
+          //               ),
+          //               TextSpan(text: data.location,),
+          //             ]
+          //           )
+          //         ),
+          //       ],
+          //     ),
+          //     Column(
+          //       mainAxisAlignment: MainAxisAlignment.start,
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         Text.rich(
+          //             TextSpan(
+          //                 children: [
+          //                   TextSpan(
+          //                     text: 'Crested: ',
+          //                     style: keywordStyle,
+          //                   ),
+          //                   TextSpan(text: data.crested ? "Yes" : "No",),
+          //                 ]
+          //             )
+          //         ),
+          //         Text.rich(
+          //             TextSpan(
+          //                 children: [
+          //                   TextSpan(
+          //                     text: 'Variegated: ',
+          //                     style: keywordStyle,
+          //                   ),
+          //                   TextSpan(text: data.variegated ? "Yes" : "No",),
+          //                 ]
+          //             )
+          //         ),
+          //         Text.rich(
+          //             TextSpan(
+          //                 children: [
+          //                   TextSpan(
+          //                     text: 'Grafted: ',
+          //                     style: keywordStyle,
+          //                   ),
+          //                   TextSpan(text: data.grafted ? "Yes" : "No",),
+          //                 ]
+          //             )
+          //         ),
+          //         Text.rich(
+          //             TextSpan(
+          //                 children: [
+          //                   TextSpan(
+          //                     text: 'Monstrous: ',
+          //                     style: keywordStyle,
+          //                   ),
+          //                   TextSpan(text: data.monstrous ? "Yes" : "No",),
+          //                 ]
+          //             )
+          //         ),
+          //       ],
+          //     ),
+          //   ],
+          // ),
+          box10,
+          Container(
+            padding: padAll12,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black45),
@@ -287,8 +436,8 @@ class _SampleMainPageState extends State<SampleMainPage> {
                           Icons.severe_cold,
                           color: Colors.grey,
                         ),
-                        if (data.TMin == null) const Text(' -')
-                        else Text(' ${data.TMin.toString()} °C')
+                        if (data.tMin == null) const Text(' -')
+                        else Text(' ${data.tMin.toString()} °C')
                       ],
                     ),
                   ],
@@ -299,7 +448,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
                       children: [
                         const Icon(
                           Icons.water_drop,
-                          color: Colors.blue,
+                          color: COLOR_ACCENT,
                         ),
                         Text(' ${data.wateringNeeds.value.toString()}'),
                       ],
@@ -322,24 +471,47 @@ class _SampleMainPageState extends State<SampleMainPage> {
               ],
             ),
           ),
-          /*const Divider(
-            height: 20,
-            thickness: 1,
-            indent: 20,
-            endIndent: 20,
-            color: Colors.black45,
-          ),*/
-          const SizedBox(height: 20),
-          const Text(
-            'Coltivazione',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.indigo,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+          box10,
+          Padding(
+            padding: padLR12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Note',
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineMedium,
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: COLOR_PRIMARY,
+                    size: 15,
+                  ),
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TextEditPage(title: 'Note', text: data.notes ?? "-")),
+                    ).then( (newText) async {
+                      updateTextField(newText);
+                    });
+                  },
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 5),
+          Padding(
+            padding: padLR12,
+            child: Text(data.notes ?? "-",),
+          ),
+          box20,
+          Text(
+            'Coltivazione',
+            textAlign: TextAlign.center,
+            style: textTheme.headlineMedium,
+          ),
+          box5,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -448,7 +620,6 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     if (soil != null) {
                       soilId = soil!.id;
                     }
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -492,52 +663,13 @@ class _SampleMainPageState extends State<SampleMainPage> {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-            child: Row(
-              children: [
-                const Text(
-                  'Note',
-                  style: TextStyle(
-                    color: Colors.black45,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Colors.black45,
-                    size: 15,
-                  ),
-                  onPressed: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TextEditPage(title: 'Note', text: data.notes ?? "-")),
-                    ).then( (newText) async {
-                      updateTextField(newText);
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-            child: Text(data.notes ?? "-",),
-          ),
-          const SizedBox(height: 20),
-          const Text(
+          box5,
+          Text(
             'Eventi',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.indigo,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: textTheme.headlineMedium,
           ),
-          const SizedBox(height: 10),
+          box5,
           Row(
             children: [
               Expanded(
@@ -636,7 +768,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          box10,
         ],
       ),
     );
@@ -669,11 +801,11 @@ class _SampleMainPageState extends State<SampleMainPage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const Padding(
-                padding: EdgeInsets.all(8),
+                padding: padAll8,
                 child: Text('Date',),
               ),
               Padding(
-                padding: const EdgeInsets.all(8),
+                padding: padAll8,
                 child: TextField(
                   controller: eventDate,
                   decoration: const InputDecoration(
@@ -696,12 +828,12 @@ class _SampleMainPageState extends State<SampleMainPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8),
+                padding: padAll8,
                 child: ElevatedButton(
-                child: const Text('Save',),
+                  child: const Text('Save',),
                   onPressed: () async {
                     final db = await DBService().db;
-                    await db.rawInsert(event.qInsert(), [widget.id, eventDate.text]);
+                    await db.rawInsert(event.qInsert(), [widget.id, event.id_, eventDate.text]);
                     setState(() {});
                     if (!context.mounted) return;
                     Navigator.of(context).pop();
@@ -713,40 +845,6 @@ class _SampleMainPageState extends State<SampleMainPage> {
         ),
       ),
     );
-  }
-
-  Future<Null> updateSample(Map<String, dynamic> newFields) async {
-    String query = '''
-    UPDATE [Sample] SET
-    [born] = ?1, [bought] = ?2, [fromSeed] = ?3, [fromCutting] = ?4
-    [crested] = ?5, [variegated] = ?6, [grafted] = ?7, [monstrous] = ?8,
-    [location] = ?9
-    WHERE [id] = ?10;
-    ''';
-    final List arguments = [
-      newFields['born'] as int,
-      newFields['bought'] ? 1 : 0,
-      newFields['fromSeed'] ? 1 : 0,
-      newFields['fromCutting'] ? 1 : 0,
-      newFields['crested'] ? 1 : 0,
-      newFields['variegated'] ? 1 : 0,
-      newFields['grafted'] ? 1 : 0,
-      newFields['monstrous'] ? 1 : 0,
-      newFields['location'] as String,
-      widget.id
-    ];
-    final db = await DBService().db;
-    await db.rawUpdate(query, arguments);
-    setState(() {});
-  }
-
-  static Map<String, dynamic> potMap(SampleDetails sample) {
-    return {
-      'material': sample.material,
-      'shape': sample.shape,
-      'size': sample.size,
-      'deep': sample.deep,
-    };
   }
 
   Future<Null> updateSoil(int soilId) async {
@@ -769,52 +867,13 @@ class _SampleMainPageState extends State<SampleMainPage> {
     setState(() {});
   }
 
-  Future<int> getNewPotId(Map<String, dynamic> newFields) async {
-    // Take the ID of the new pot. If null it does not exists
-    final db = await DBService().db;
-    int newId;
-
-    String idQuery = '''
-    SELECT [id] FROM [Pot] WHERE
-      [material] = ?1 AND [shape] = ?2 AND
-      [deep] = ?3 AND [size] = ?4;
-    ''';
-    final mapId = await db.rawQuery(
-        idQuery,
-        [
-          newFields['material'].value, newFields['shape'].value,
-          newFields['deep'] ? 1 : 0, newFields['size']
-        ]
-    );
-
-    // If no existing pot corresponds
-    if (mapId.isEmpty) {
-      // Get the MAX(id)
-      String maxIdQuery = '''SELECT MAX([id]) AS id FROM [Pot];''';
-      final maxId = await db.rawQuery(maxIdQuery);
-      newId = maxId[0]['id'] as int;
-      // Add 1 to the ID and save the new pot in Pot
-      newId += 1;
-
-      // Save the new pot
-      String newPotQuery = '''
-      INSERT INTO [Pot] ([id], [material], [shape], [deep], [size])
-      VALUES (?1, ?2, ?3, ?4, ?5);
-      ''';
-      await db.rawInsert(
-          newPotQuery,
-          [
-            newId, newFields['material'].value, newFields['shape'].value,
-            newFields['deep'] ? 1 : 0, newFields['size']
-          ]
-      );
-
-    } else {
-      newId = mapId[0]['id'] as int;
-    }
-
-    // Return the pot ID to update the Sample table
-    return newId;
+  Map<String, dynamic> potMap(SampleDetails sample) {
+    return {
+      'material': sample.material,
+      'shape': sample.shape,
+      'size': sample.size,
+      'deep': sample.deep,
+    };
   }
 
   List<Center> createSoilGrid() {
@@ -842,13 +901,6 @@ class _SampleMainPageState extends State<SampleMainPage> {
         );
       });
     }
-  }
-
-  Future<Null> deleteSample(int id) async {
-    final db = await DBService().db;
-
-    await db.rawDelete('DELETE FROM [Events] WHERE [id] = ?1;', [id]);
-    await db.rawDelete('DELETE FROM [Sample] WHERE [id] = ?1;', [id]);
   }
 
   Future<Null> updateTextField(String? text) async {

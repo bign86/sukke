@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
+import 'package:numberpicker/numberpicker.dart';
+
 import 'package:sukke/db.dart';
 import 'package:sukke/objects/potobj.dart';
 import 'package:sukke/objects/plantobj.dart';
-import 'package:multi_dropdown/multiselect_dropdown.dart';
-import 'package:numberpicker/numberpicker.dart';
-
+import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/theme.dart';
 
 class SampleAddPage extends StatefulWidget {
   const SampleAddPage({super.key});
@@ -16,7 +17,7 @@ class SampleAddPage extends StatefulWidget {
 }
 
 class _SampleAddPage extends State<SampleAddPage> {
-  Future<List<ValueItem>> plants = fetchPlants();
+  Future<List<DropdownItem<String>>> plants = fetchPlants();
   Map<String, dynamic> controllers = {};
   final _formKey = GlobalKey<FormState>();
 
@@ -39,7 +40,10 @@ class _SampleAddPage extends State<SampleAddPage> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
-              if (controllers['material'] == null || controllers['shape'] == null) {
+              if (
+                controllers['material'] == null ||
+                controllers['shape'] == null
+              ) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     duration: const Duration(seconds: 3),
@@ -47,19 +51,18 @@ class _SampleAddPage extends State<SampleAddPage> {
                     content: const Text('Il vaso DEVE essere inizializzato!'),
                   )
                 );
+              } else if (
+                controllers['plant'] == null ||
+                controllers['plant'].isEmpty
+              ) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 3),
+                    backgroundColor: Colors.red[700],
+                    content: const Text('Non hai selezionato alcuna pianta!'),
+                  )
+                );
               } else {
-                var list = controllers['material'];
-                for (int i = 0; i < list.length; i++) {
-                  if (list[i] == true) {
-                    controllers['material'] = PotMaterial.getSelection(i);
-                  }
-                }
-                list = controllers['shape'];
-                for (int i = 0; i < list.length; i++) {
-                  if (list[i] == true) {
-                    controllers['shape'] = PotShape.getSelection(i);
-                  }
-                }
                 newSampleToDB(controllers);
                 Navigator.of(context).pop();
               }
@@ -101,26 +104,20 @@ class _SampleAddPage extends State<SampleAddPage> {
     controllers['deep'] = false;
 
     // Multiple choice controllers
-    var controlsMat = List<bool>.filled(PotMaterial.len(), false);
-    controllers['material'] = controlsMat;
-    var controlsShp = List<bool>.filled(PotShape.len(), false);
-    controllers['shape'] = controlsShp;
+    controllers['material'] = PotMaterial.toList[0];
+    controllers['shape'] = PotShape.toList[0];
 
     // List controllers
-    MultiSelectController controller = MultiSelectController();
-    controllers['plantControl'] = controller;
     controllers['plant'] = null;
 
     // Numeric controllers
-    controllers['born'] = DateTime.now().year as int;
+    controllers['born'] = DateTime.now().year;
     controllers['size'] = 1;
   }
 
-  ListView formsList(List<ValueItem> plants) {
-    const box = SizedBox(height: 5);
-    const doubleBox = SizedBox(height: 10);
+  ListView formsList(List<DropdownItem<String>> plants) {
     List<Widget> l = <Widget>[
-      doubleBox,
+      box10,
       const Center(
         child: Text(
           'Plant',
@@ -130,25 +127,45 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ),
       ),
-      doubleBox,
+      box10,
       Center(
-        child: MultiSelectDropDown(
-          controller: controllers['plantControl'],
-          onOptionSelected: (options) {
-            controllers['plant'] = controllers['plantControl'].selectedOptions[0];
+        child: MultiDropdown(
+          items: plants,
+          controller: MultiSelectController<String>(), //controllers['plantControl'],
+          singleSelect: true,
+          validator: (option) {
+            if (option == null || option.isEmpty) {
+              return 'Select a plant';
+            }
+            return null;
           },
-          onOptionRemoved: (index, option) {
-            controllers['plant'] = null;
+          onSelectionChange: (options) {
+            controllers['plant'] = options;
           },
-          options: plants,
-          selectionType: SelectionType.single,
-          chipConfig: const ChipConfig(wrapType: WrapType.wrap),
-          dropdownHeight: 300,
-          optionTextStyle: const TextStyle(fontSize: 12),
-          selectedOptionIcon: const Icon(Icons.check_circle),
+          dropdownDecoration: DropdownDecoration(
+            marginTop: 2,
+            maxHeight: 300,
+            header: Padding(
+              padding: padAll8,
+              child: Text(
+                'Select a plant from the list',
+                textAlign: TextAlign.start,
+                style: textTheme.bodyMedium,
+              ),
+            ),
+          ),
+          dropdownItemDecoration: const DropdownItemDecoration(
+            selectedIcon: Icon(Icons.check_circle),
+          ),
+          chipDecoration: const ChipDecoration(
+            backgroundColor: Colors.white,
+            wrap: true,
+            runSpacing: 2,
+            spacing: 5,
+          ),
         ),
       ),
-      box,
+      box5,
       const Center(
         child: Text(
           'Campione',
@@ -158,7 +175,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ),
       ),
-      doubleBox,
+      box10,
       Row(
         children: [
           const Expanded(
@@ -189,7 +206,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -211,7 +228,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -233,7 +250,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -255,7 +272,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -277,7 +294,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -299,7 +316,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -321,7 +338,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -343,7 +360,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       const Divider(
         height: 30,
         thickness: 1,
@@ -351,7 +368,7 @@ class _SampleAddPage extends State<SampleAddPage> {
         endIndent: 20,
         color: Colors.black45,
       ),
-      box,
+      box5,
       const Center(
         child: Text(
           'Vaso',
@@ -361,65 +378,47 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ),
       ),
-      doubleBox,
-      Row(
-        children: [
-          const Expanded(
-            flex: 2,
-            child: Center(child: Text('Materiale',),),
-          ),
-          Expanded(
-            flex: 3,
-            child: Center(
-              child:ToggleButtons(
-                direction: Axis.horizontal,
-                isSelected: controllers['material'],
-                onPressed: (int index) {
-                  setState(() {
-                    var list = controllers['material'];
-                    for (int i = 0; i < list.length; i++) {
-                      list[i] = i == index;
-                    }
-                  });
-                },
-                children: PotMaterial.toList
-                    .map((PotMaterial mat) => Text(mat.label))
-                    .toList(),
-              ),
-            ),
-          ),
-        ],
+      box10,
+      Center(child: Text('Materiale',),),
+      box5,
+      Center(
+        child: SegmentedButton<PotMaterial>(
+          segments: PotMaterial.values.map(
+                  (material) => ButtonSegment<PotMaterial>(
+                value: material,
+                label: Text(material.label),
+              )
+          ).toList(),
+          selected: <PotMaterial>{controllers['material']},
+          multiSelectionEnabled: false,
+          onSelectionChanged: (Set<PotMaterial> newSelection) {
+            setState(() {
+              controllers['material'] = newSelection.first;
+            });
+          },
+        ),
       ),
-      box,
-      Row(
-        children: [
-          const Expanded(
-            flex: 2,
-            child: Center(child: Text('Forma',),),
-          ),
-          Expanded(
-            flex: 3,
-            child: Center(
-              child: ToggleButtons(
-                direction: Axis.horizontal,
-                isSelected: controllers['shape'],
-                onPressed: (int index) {
-                  setState(() {
-                    var list = controllers['shape'];
-                    for (int i = 0; i < list.length; i++) {
-                      list[i] = i == index;
-                    }
-                  });
-                },
-                children: PotShape.toList
-                    .map((PotShape shape) => Text(shape.label))
-                    .toList(),
-              ),
-            ),
-          ),
-        ],
+      box5,
+      Center(child: Text('Forma',),),
+      box5,
+      Center(
+        child: SegmentedButton<PotShape>(
+          segments: PotShape.values.map(
+                  (shape) => ButtonSegment<PotShape>(
+                value: shape,
+                label: Text(shape.label),
+              )
+          ).toList(),
+          selected: <PotShape>{controllers['shape']},
+          multiSelectionEnabled: false,
+          onSelectionChanged: (Set<PotShape> newSelection) {
+            setState(() {
+              controllers['shape'] = newSelection.first;
+            });
+          },
+        ),
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -450,7 +449,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -480,13 +479,13 @@ class _SampleAddPage extends State<SampleAddPage> {
     );
   }
 
-  static Future<List<ValueItem>> fetchPlants() async {
+  static Future<List<DropdownItem<String>>> fetchPlants() async {
     final db = await DBService().db;
-    final res = await db.rawQuery('SELECT [id], COALESCE([species], [commonName])||" "||COALESCE([variant], "") AS [name] FROM [Plant] ORDER BY [name];');
+    final res = await db.rawQuery("SELECT [id], COALESCE([species], [commonName])||' '||COALESCE([variant], '') AS [name] FROM [Plant] ORDER BY [name];");
 
     List<PlantListItem> plantsList = res.map((e) => PlantListItem.fromMap(e)).toList();
-    return plantsList.map<ValueItem<String>>(
-            (c) => ValueItem<String>(label: c.name.toString(), value: c.id.toString())
+    return plantsList.map<DropdownItem<String>>(
+            (c) => DropdownItem<String>(label: c.name.toString(), value: c.id.toString())
     ).toList();
   }
 
@@ -499,11 +498,11 @@ class _SampleAddPage extends State<SampleAddPage> {
       'size': newFields['size']
     };
     final int potId = await getNewPotId(potData);
+    final int sampleId = await getMaxId('maxIdSample') + 1;
 
     final db = await DBService().db;
-    final List<Map> res = await db.rawQuery('SELECT [valueNum] FROM [System] WHERE [key] = "maxIdSample";');
-    final sampleId = (res[0]['valueNum'] as int) + 1;
 
+    // Add the new sample to the DB
     String newSampleQuery = '''
     INSERT INTO [Sample]
     ([id], [plant], [pot], [born], [crested], [variegated],
@@ -511,72 +510,18 @@ class _SampleAddPage extends State<SampleAddPage> {
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);
     ''';
     final List<dynamic> arguments = <dynamic>[
-      sampleId, newFields['plant'].value, potId, newFields['born'],
+      sampleId, newFields['plant'][0], potId, newFields['born'],
       newFields['crested'], newFields['variegated'], newFields['grafted'],
       newFields['monstrous'], newFields['bought'], newFields['fromSeed'],
       newFields['fromCutting']
     ];
     await db.rawInsert(newSampleQuery, arguments);
 
+    // Update the max id of samples
     String maxIdQuery = '''
     UPDATE [System] SET [valueNum] = ?1
-    WHERE [key] = "maxIdSample";
+    WHERE [key] = 'maxIdSample';
     ''';
     await db.rawUpdate(maxIdQuery, [sampleId]);
-
-    setState(() {});
-  }
-
-  Future<int> getNewPotId(Map<String, dynamic> newFields) async {
-    // Take the ID of the new pot. If null it does not exists
-    final db = await DBService().db;
-    int newId;
-
-    String idQuery = '''
-    SELECT [id] FROM [Pot] WHERE
-      [material] = ?1 AND [shape] = ?2 AND
-      [deep] = ?3 AND [size] = ?4;
-    ''';
-    final mapId = await db.rawQuery(
-        idQuery,
-        [
-          newFields['material'].value, newFields['shape'].value,
-          newFields['deep'] ? 1 : 0, newFields['size']
-        ]
-    );
-
-    // If no existing pot corresponds
-    if (mapId.isEmpty) {
-      // Get the MAX(id)
-      String maxIdQuery = '''SELECT [valueNum] FROM [System] WHERE [key] = "maxIdPot";''';
-      final maxId = await db.rawQuery(maxIdQuery);
-      newId = maxId[0]['valueNum'] as int;
-      // Add 1 to the ID and save the new pot in Pot
-      newId += 1;
-
-      // Save the new pot
-      String newPotQuery = '''
-      INSERT INTO [Pot] ([id], [material], [shape], [deep], [size])
-      VALUES (?1, ?2, ?3, ?4, ?5);
-      ''';
-      await db.rawInsert(
-          newPotQuery,
-          [
-            newId, newFields['material'].value, newFields['shape'].value,
-            newFields['deep'] ? 1 : 0, newFields['size']
-          ]
-      );
-
-      String maxIdPot = '''
-      UPDATE [System] SET [valueNum] = ?1
-      WHERE [key] = "maxIdPot";
-      ''';
-      await db.rawUpdate(maxIdPot, [newId]);
-    } else {
-      newId = mapId[0]['id'] as int;
-    }
-
-    // Return the pot ID to update the Sample table
-    return newId;
   }
 }

@@ -98,7 +98,7 @@ class _SoilSummaryPage extends State<SoilSummaryPage> {
 
   Future<Null> saveNewSoil(Map newSoil) async {
     final db = await DBService().db;
-    const String idQuery = 'SELECT [valueNum] FROM [System] WHERE key = "maxIdSoilMix";';
+    const String idQuery = "SELECT [valueNum] FROM [System] WHERE key = 'maxIdSoilMix';";
     final newIdMap = await db.rawQuery(idQuery);
     final int newId = (newIdMap[0]['valueNum'] as int) + 1;
 

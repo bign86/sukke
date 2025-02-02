@@ -1,3 +1,4 @@
+import 'package:sukke/db.dart';
 
 class Pot{
   final int id;
@@ -15,25 +16,83 @@ class Pot{
   });
 
   Pot.fromMap(Map item):
-    id=item["id"],
-    material=PotMaterial.getSelection(item["material"]),
-    shape=PotShape.getSelection(item["shape"]),
-    deep=item["deep"] == 0 ? false : true,
-    size=item["size"];
+    id       = item["id"],
+    material = PotMaterial.getSelection(item["material"]),
+    shape    = PotShape.getSelection(item["shape"]),
+    deep     = item["deep"] == 0 ? false : true,
+    size     = item["size"];
 
   Map<String, Object> toMap(){
     return {
-      'id':id, 'material':material, 'shape':shape, 'deep':deep, 'size':size
+      'id':id,
+      'material':material,
+      'shape':shape,
+      'deep':deep,
+      'size':size
     };
   }
 
   // Implement toString to make it easier to see information about
-  // each dog when using the print statement.
+  // each pot when using the print statement.
   @override
   String toString() {
     return 'Pot{id: $id, material: $material, size: $size}';
   }
 }
+
+Future<int> getNewPotId(Map<String, dynamic> newFields) async {
+  // Take the ID of the new pot. If null it does not exists.
+  final db = await DBService().db;
+  int newId;
+
+  String idQuery = '''
+    SELECT [id] FROM [Pot] WHERE
+      [material] = ?1 AND [shape] = ?2 AND
+      [deep] = ?3 AND [size] = ?4;
+    ''';
+  final mapId = await db.rawQuery(
+      idQuery,
+      [
+        newFields['material'].value, newFields['shape'].value,
+        newFields['deep'] ? 1 : 0, newFields['size']
+      ]
+  );
+
+  // If no existing pot corresponds to the new one
+  if (mapId.isEmpty) {
+    // Get the MAX(id)
+    newId = await getMaxId('maxIdPot');
+    // String maxIdQuery = '''SELECT MAX([id]) AS id FROM [Pot];''';
+    // final maxId = await db.rawQuery(maxIdQuery);
+    // newId = maxId[0]['id'] as int;
+    // Add 1 to the ID and save the new pot in Pot
+    newId += 1;
+
+    // Save the new pot
+    String newPotQuery = '''
+      INSERT INTO [Pot] ([id], [material], [shape], [deep], [size])
+      VALUES (?1, ?2, ?3, ?4, ?5);
+      ''';
+    await db.rawInsert(
+        newPotQuery,
+        [
+          newId, newFields['material'].value, newFields['shape'].value,
+          newFields['deep'] ? 1 : 0, newFields['size']
+        ]
+    );
+
+    // Update the maxIdPot
+    String newMaxIdPot = "UPDATE [System] SET [valueNum] = ?1 WHERE [key] = 'maxIdPot';";
+    await db.rawInsert(newMaxIdPot, [newId]);
+
+  } else {
+    newId = mapId[0]['id'] as int;
+  }
+
+  // Return the pot ID to update the Sample table
+  return newId;
+}
+
 
 enum PotShape {
   square('Square', 1),

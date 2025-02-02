@@ -61,3 +61,21 @@ class DBService {
     return await openDatabase(path);
   }
 }
+
+Future<int> getMaxId(String object) async {
+  final db = await DBService().db;
+
+  // Get high-water-mark id and cross check with current max to create some
+  // self-correcting logic.
+  final query = '''
+  SELECT MAX(s.[valueNum], m.[id]) AS 'maxId'
+  FROM [System] AS s
+  JOIN [Metadata] AS m
+  ON s.[key] = m.[object]
+  WHERE s.[key] = ?1;
+  ''';
+
+  final map = await db.rawQuery(query, [object]);
+  return map[0]['maxId'] as int;
+}
+

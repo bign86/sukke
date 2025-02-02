@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:sukke/samplelist.dart';
+import 'package:sukke/theme/theme.dart';
 
 void main() async {
   // Avoid errors caused by flutter upgrade.
@@ -17,14 +19,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sukke',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-        textTheme: Theme.of(context).textTheme.apply(
-              fontSizeFactor: 0.8,
-              fontSizeDelta: 0.9,
-            ),
-      ),
+      theme: mainTheme,
+      // theme: ThemeData(
+      //   colorScheme: ColorScheme.fromSeed(
+      //     brightness: Brightness.light,
+      //     seedColor: Colors.indigo
+      //   ),
+      //   useMaterial3: true,
+      //   textTheme: Theme.of(context).textTheme.apply(
+      //     fontSizeFactor: 0.8,
+      //     fontSizeDelta: 0.9,
+      //   ),
+      // ),
       home: const SampleSummaryPage(),
     );
   }

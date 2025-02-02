@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sukke/objects/sampleobj.dart';
 import 'package:numberpicker/numberpicker.dart';
 
+import 'package:sukke/objects/sampleobj.dart';
+import 'package:sukke/theme/elements.dart';
 
 class SampleEditPage extends StatefulWidget {
   const SampleEditPage({
@@ -76,14 +77,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
   }
 
   List<Widget> formsList() {
-    const box = SizedBox(height: 5);
     return <Widget>[
-      box,
+      box10,
       Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Expanded(
             flex: 1,
-            child: Text('Born',),
+            child: Center(child: Text('Born',),),
           ),
           Expanded(
             flex: 3,
@@ -109,12 +110,12 @@ class _SampleEditPageState extends State<SampleEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
             flex: 1,
-            child: Text('Bought',),
+            child: Center(child: Text('Bought',),),
           ),
           Expanded(
             flex: 3,
@@ -131,12 +132,12 @@ class _SampleEditPageState extends State<SampleEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
             flex: 1,
-            child: Text('From seed',),
+            child: Center(child: Text('From seed',),),
           ),
           Expanded(
             flex: 3,
@@ -153,12 +154,12 @@ class _SampleEditPageState extends State<SampleEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
             flex: 1,
-            child: Text('From cutting',),
+            child: Center(child: Text('From cutting',),),
           ),
           Expanded(
             flex: 3,
@@ -175,12 +176,12 @@ class _SampleEditPageState extends State<SampleEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
             flex: 1,
-            child: Text('Crested',),
+            child: Center(child: Text('Crested',),),
           ),
           Expanded(
             flex: 3,
@@ -197,12 +198,12 @@ class _SampleEditPageState extends State<SampleEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
             flex: 1,
-            child: Text('Variegated',),
+            child: Center(child: Text('Variegated',),),
           ),
           Expanded(
             flex: 3,
@@ -219,12 +220,12 @@ class _SampleEditPageState extends State<SampleEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
             flex: 1,
-            child: Text('Grafted',),
+            child: Center(child: Text('Grafted',),),
           ),
           Expanded(
             flex: 3,
@@ -241,12 +242,12 @@ class _SampleEditPageState extends State<SampleEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
             flex: 1,
-            child: Text('Monstrous',),
+            child: Center(child: Text('Monstrous',),),
           ),
           Expanded(
             flex: 3,
@@ -259,30 +260,6 @@ class _SampleEditPageState extends State<SampleEditPage> {
                   controllers['monstrous'] = value;
                 });
               },
-            ),
-          ),
-        ],
-      ),
-      box,
-      Row(
-        children: [
-          const Expanded(
-            flex: 1,
-            child: Text('Notes',),
-          ),
-          Expanded(
-            flex: 3,
-            child: TextField(
-              controller: controllers['notes'],
-              style: const TextStyle(fontSize: 12,),
-              onChanged: (String value) {
-                controllers['notes'] = value;
-              },
-              autofocus: false,
-              autocorrect: false,
-              keyboardType: TextInputType.multiline,
-              minLines: 1,
-              maxLines: 2,
             ),
           ),
         ],

@@ -2,13 +2,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+
 import 'package:sukke/db.dart';
+import 'package:sukke/theme/elements.dart';
 
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
-  static const String version = '0.1.1';
+  static const String version = '0.1.3';
   static const String author = 'Nero';
 
   @override
@@ -33,9 +35,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget settingsPage() {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.all(8),
+        padding: padAll8,
         children: [
-          const SizedBox(height: 30),
+          box30,
           Center(
             child: TextButton.icon(
               onPressed: () async {
@@ -50,13 +52,9 @@ class _SettingsPageState extends State<SettingsPage> {
               label: const Text('Backup the Database by sharing',),
             ),
           ),
-          const SizedBox(height: 30),
-          const Divider(
-            color: Colors.black26,
-            indent: 20,
-            endIndent: 20,
-          ),
-          const SizedBox(height: 30),
+          box30,
+          dividerGray20,
+          box30,
           const Center(
             child: Text(
               'Version: ${SettingsPage.version}',

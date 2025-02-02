@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sukke/objects/plantobj.dart';
-import 'package:multi_dropdown/multiselect_dropdown.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:numberpicker/numberpicker.dart';
+
+import 'package:sukke/objects/plantobj.dart';
 
 class PlantAnagraphicEditPage extends StatefulWidget {
   const PlantAnagraphicEditPage({
@@ -74,14 +75,6 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
     // List controllers
     controllers['synonyms'] =
         TextEditingController(text: widget.fieldsMap['synonyms'].join(', '));
-    var countries = widget.fieldsMap['countries'];
-    var setCountries = countries.map<ValueItem<String>>(
-            (c) => ValueItem<String>(label: c.trim().toString(), value: c.trim().toString())
-    ).toList();
-    MultiSelectController controller = MultiSelectController();
-    controller.setOptions(knownCountries);
-    controller.setSelectedOptions(setCountries);
-    controllers['countries'] = controller;
 
     // Boolean controllers
     controllers['cultivar'] = (widget.fieldsMap['cultivar'] as bool);
@@ -243,20 +236,37 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
           Expanded(
             flex: 3,
-            child: MultiSelectDropDown(
-              controller: controllers['countries'],
-              onOptionSelected: (options) {
-                newFields['countries'] = controllers['countries'].selectedOptions;
+            child: MultiDropdown(
+              items: getKnownCountries(),
+              controller: MultiSelectController<String>(),
+              singleSelect: false,
+              onSelectionChange: (options) {
+                newFields['countries'] = options;
               },
-              onOptionRemoved: (index, option) {
-                newFields['countries'] = controllers['countries'].selectedOptions;
-              },
-              options: knownCountries,
-              selectionType: SelectionType.multi,
-              chipConfig: const ChipConfig(wrapType: WrapType.wrap),
-              dropdownHeight: 300,
-              optionTextStyle: const TextStyle(fontSize: 12),
-              selectedOptionIcon: const Icon(Icons.check_circle),
+              dropdownDecoration: const DropdownDecoration(
+                marginTop: 2,
+                maxHeight: 300,
+                header: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    'Select a plant from the list',
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      fontSize: 12,
+                      //fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              dropdownItemDecoration: const DropdownItemDecoration(
+                selectedIcon: Icon(Icons.check_circle),
+              ),
+              chipDecoration: const ChipDecoration(
+                backgroundColor: Colors.white,
+                wrap: true,
+                runSpacing: 2,
+                spacing: 5,
+              ),
             ),
           ),
         ],
@@ -454,21 +464,38 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       ),
     ];
   }
-}
 
-const List<ValueItem> knownCountries = <ValueItem>[
-  ValueItem(label: 'Argentina', value: 'Argentina'),
-  ValueItem(label: 'Bolivia', value: 'Bolivia'),
-  ValueItem(label: 'Brazil', value: 'Brazil'),
-  ValueItem(label: 'Canada', value: 'Canada'),
-  ValueItem(label: 'Chile', value: 'Chile'),
-  ValueItem(label: 'Madagascar', value: 'Madagascar'),
-  ValueItem(label: 'Mexico', value: 'Mexico'),
-  ValueItem(label: 'Namibia', value: 'Namibia'),
-  ValueItem(label: 'Oman', value: 'Oman'),
-  ValueItem(label: 'Paraguay', value: 'Paraguay'),
-  ValueItem(label: 'Peru', value: 'Peru'),
-  ValueItem(label: 'South Africa', value: 'South Africa'),
-  ValueItem(label: 'United States', value: 'United States'),
-  ValueItem(label: 'Uruguay', value: 'Uruguay'),
-];
+  List<DropdownItem<String>> getKnownCountries() {
+    List<DropdownItem<String>> knownCountries = <DropdownItem<String>>[
+      DropdownItem<String>(label: 'Argentina', value: 'Argentina', selected: false),
+      DropdownItem<String>(label: 'Bolivia', value: 'Bolivia', selected: false),
+      DropdownItem<String>(label: 'Brazil', value: 'Brazil', selected: false),
+      DropdownItem<String>(label: 'Canada', value: 'Canada', selected: false),
+      DropdownItem<String>(label: 'Chile', value: 'Chile', selected: false),
+      DropdownItem<String>(label: 'Madagascar', value: 'Madagascar', selected: false),
+      DropdownItem<String>(label: 'Mexico', value: 'Mexico', selected: false),
+      DropdownItem<String>(label: 'Namibia', value: 'Namibia', selected: false),
+      DropdownItem<String>(label: 'Oman', value: 'Oman', selected: false),
+      DropdownItem<String>(label: 'Paraguay', value: 'Paraguay', selected: false),
+      DropdownItem<String>(label: 'Peru', value: 'Peru', selected: false),
+      DropdownItem<String>(label: 'South Africa', value: 'South Africa', selected: false),
+      DropdownItem<String>(label: 'United States', value: 'United States', selected: false),
+      DropdownItem<String>(label: 'Uruguay', value: 'Uruguay', selected: false),
+    ];
+
+    // Check if widget.fieldsMap['countries'] is present and is a List
+    if (widget.fieldsMap.containsKey('countries') &&
+        widget.fieldsMap['countries'] is List) {
+      List<String> selectedCountryCodes = List<String>.from(widget.fieldsMap['countries']);
+
+      // Loop over knownCountries and set 'selected' to true if the country code is in selectedCountryCodes
+      for (var country in knownCountries) {
+        if (selectedCountryCodes.contains(country.label)) {
+          country.selected = true;
+        }
+      }
+    }
+
+    return knownCountries;
+  }
+}

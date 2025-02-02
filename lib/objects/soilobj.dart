@@ -159,7 +159,6 @@ class Soil{
   static Future<List<Soil>> fetchSoilList() async {
     final db = await DBService().db;
     final maps = await db.rawQuery(Soil.selectAllQuery);
-    print(maps.map((e) => Soil.fromMap(e)).toList());
     return maps.map((e) => Soil.fromMap(e)).toList();
   }
 }
