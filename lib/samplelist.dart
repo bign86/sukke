@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ class SampleSummaryPage extends StatefulWidget {
 
 class _SampleSummaryPage extends State<SampleSummaryPage> {
   Key sampleSummaryPageKey = UniqueKey();
+  String _query = '';
 
   @override
   Widget build(BuildContext context) {
@@ -88,63 +90,85 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
       body: Center(
         child: Column(
           key: sampleSummaryPageKey,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              box5,
-              Text(
-                'Le mie piante',
-                textAlign: TextAlign.center,
-                style: textTheme.titleLarge,
-              ),
-              box5,
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  key: ValueKey('sample_summary_head'),
-                  children: <Widget>[
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        'ID',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.w300),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Text(
-                        'Nome',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.w300),
-                      ),
-                    ),
-                  ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            box5,
+            Text(
+              'Le mie piante',
+              textAlign: TextAlign.center,
+              style: textTheme.titleLarge,
+            ),
+            box5,
+            Padding(
+              padding: padLR8,
+              child: TextField(
+                style: textTheme.labelLarge,
+                autofocus: false,
+                showCursor: true,
+                maxLines: 1,
+                selectionHeightStyle: BoxHeightStyle.tight,
+                cursorHeight: textTheme.labelLarge?.fontSize,
+                onChanged: (value) {
+                  setState(() {
+                    _query = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintMaxLines: 1,
+                  isCollapsed: false,
+                  hintStyle: textTheme.labelLarge,
+                  border: OutlineInputBorder(
+                    borderRadius: borderR10,
+                  ),
+                  fillColor: Colors.grey[200],
+                  prefixIcon: Icon(Icons.search,),
                 ),
               ),
-              const Divider(
-                height: 10,
-                thickness: 1,
-                indent: 8,
-                endIndent: 8,
-                color: Colors.black45,
+            ),
+            box10,
+            const Padding(
+              padding: padLR8,
+              child: Row(
+                key: ValueKey('sample_summary_head'),
+                children: <Widget>[
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'ID',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.w300),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: Text(
+                      'Nome',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontWeight: FontWeight.w300),
+                    ),
+                  ),
+                ],
               ),
-              //SampleSummaryTable(key: sampleSummaryPageKey),
-              Expanded(
-                child: FutureBuilder(
-                  key: UniqueKey(),
-                  future: fetchSamples(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasData) {
-                      return summaryTable(snapshot.data!);
-                    } else {
-                      return const Text("No data available");
-                    }
-                  },
-                ),
+            ),
+            dividerGray10,
+            //SampleSummaryTable(key: sampleSummaryPageKey),
+            Expanded(
+              child: FutureBuilder(
+                key: UniqueKey(),
+                future: fetchSamples(_query),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasData) {
+                    return summaryTable(snapshot.data!);
+                  } else {
+                    return const Text("No data available");
+                  }
+                },
               ),
-            ],
+            ),
+          ],
         ),
       ),
     );
@@ -153,7 +177,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
   Widget summaryTable(List<SampleListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: padLR8, //const EdgeInsets.fromLTRB(8, 0, 8, 20),
+        padding: padLR8,
         children: data.map((sample) => summaryRow(sample)).toList(),
       ),
     );
@@ -196,92 +220,15 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
     );
   }
 
-  static Future<List<SampleListItem>> fetchSamples() async {
+  static Future<List<SampleListItem>> fetchSamples(String partialSearch) async {
+    var query = 'SELECT [id], [name] FROM [Summary]';
+    if (partialSearch.isNotEmpty) {
+      query += ' WHERE [name] LIKE "%$partialSearch%" OR [id] LIKE "%$partialSearch%";';
+    }
+    query += ' ORDER BY [name];';
+
     final db = await DBService().db;
-    final maps = await db.rawQuery('SELECT [id], [name] FROM [Summary] ORDER BY [name];');
+    final maps = await db.rawQuery(query);
     return maps.map((e) => SampleListItem.fromMap(e)).toList();
   }
 }
-
-// class SampleSummaryTable extends StatefulWidget {
-//   const SampleSummaryTable({super.key});
-//
-//   @override
-//   _SampleSummaryTable createState() => _SampleSummaryTable();
-// }
-//
-// class _SampleSummaryTable extends State<SampleSummaryTable> {
-//   Future<List<SampleListItem>> samples = fetchSamples();
-//   Key sampleSummaryKey = UniqueKey();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Expanded(
-//       child: FutureBuilder(
-//         key: sampleSummaryKey,
-//         future: fetchSamples(),
-//         builder: (context, snapshot) {
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return const CircularProgressIndicator();
-//           } else if (snapshot.hasData) {
-//             return summaryTable(snapshot.data!);
-//           } else {
-//             return const Text("No data available");
-//           }
-//         },
-//       ),
-//     );
-//   }
-//
-//   Widget summaryTable(List<SampleListItem> data) {
-//     return CupertinoScrollbar(
-//       child: ListView(
-//         padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
-//         children: data.map((sample) => summaryRow(sample)).toList(),
-//       ),
-//     );
-//   }
-//
-//   Widget summaryRow(SampleListItem sample) {
-//     return GestureDetector(
-//       onTap: () {
-//         Navigator.push(
-//           context,
-//           MaterialPageRoute(
-//               builder: (context) => SampleMainPage(id: sample.id)
-//           ),
-//         ).then((c) {
-//           setState(() {
-//             sampleSummaryKey = UniqueKey();
-//           });
-//         });
-//       },
-//       child: Row(
-//         key: ValueKey(sample.id),
-//         children: <Widget>[
-//           Expanded(
-//             flex: 1,
-//             child: Text(
-//               sample.id.toString(),
-//               textAlign: TextAlign.center,
-//               style: textTheme.bodySmall,
-//             ),
-//           ),
-//           Expanded(
-//             flex: 5,
-//             child: Text(
-//               sample.name,
-//               style: textTheme.bodyMedium,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   static Future<List<SampleListItem>> fetchSamples() async {
-//     final db = await DBService().db;
-//     final maps = await db.rawQuery('SELECT [id], [name] FROM [Summary] ORDER BY [name];');
-//     return maps.map((e) => SampleListItem.fromMap(e)).toList();
-//   }
-// }
