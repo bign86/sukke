@@ -220,6 +220,12 @@ class Sample {
   }
 }
 
+Future<SampleDetails> fetchSampleData(int sampleId) async {
+  final db = await DBService().db;
+  final map = await db.rawQuery(SampleDetails.selectQuery, [sampleId]);
+  return SampleDetails.fromMap(map[0]);
+}
+
 Future<Null> updateSample(int sampleId, Map<String, dynamic> newFields) async {
   String query = '''
     UPDATE [Sample] SET
@@ -246,8 +252,19 @@ Future<Null> updateSample(int sampleId, Map<String, dynamic> newFields) async {
 
 Future<Null> deleteSample(int id) async {
   final db = await DBService().db;
-
   await db.rawDelete('DELETE FROM [Events] WHERE [id] = ?1;', [id]);
   await db.rawDelete('DELETE FROM [Sample] WHERE [id] = ?1;', [id]);
+}
+
+Future<Null> updateSampleSoil(int sampleId, int soilId) async {
+  String query = 'UPDATE [Sample] SET [soil] = ?1 WHERE [id] = ?2;';
+  final db = await DBService().db;
+  await db.rawUpdate(query, [soilId, sampleId]);
+}
+
+Future<Null> updateSampleNotes(int sampleId, String? text) async {
+  final db = await DBService().db;
+  const query = 'UPDATE [Sample] SET [notes] = ?1 WHERE [id] = ?2';
+  await db.rawUpdate(query, [text, sampleId]);
 }
 

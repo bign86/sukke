@@ -8,6 +8,13 @@ const box20 = SizedBox(height: 20);
 const box30 = SizedBox(height: 30);
 
 // Horizontal dividers
+const dividerGray10 = const Divider(
+height: 10,
+thickness: 1,
+indent: 8,
+endIndent: 8,
+color: Colors.black45,
+);
 const dividerGray20 = Divider(
   height: 20,
   thickness: 1,
@@ -27,3 +34,8 @@ const padLR10 = EdgeInsets.symmetric(horizontal: 10);
 const padLR12 = EdgeInsets.symmetric(horizontal: 12);
 const padLR16 = EdgeInsets.symmetric(horizontal: 16);
 
+// Borders
+
+const borderR8 = BorderRadius.all(Radius.circular(8));
+const borderR10 = BorderRadius.all(Radius.circular(10));
+const borderR12 = BorderRadius.all(Radius.circular(12));

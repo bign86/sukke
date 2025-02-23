@@ -81,7 +81,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
       ),
       body: Center(
         child: FutureBuilder<SampleDetails>(
-          future: fetchSampleData(),
+          future: fetchData(widget.id),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
@@ -157,264 +157,102 @@ class _SampleMainPageState extends State<SampleMainPage> {
           ),
           box5,
           Container(
-            padding: padAll12,
-            // decoration: BoxDecoration(
-            //   border: Border.all(color: Colors.black45),
-            //   shape: BoxShape.rectangle,
-            //   borderRadius: const BorderRadius.all(Radius.circular(8),),
-            // ),
-            child: Column(
-              children: [
-                Row(
-                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: Text(
-                        'Born: ',
-                        style: keywordStyle,
-                      ),
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: Text(
-                        data!.born.toString(),
-                        style: textTheme.bodyMedium,
-                      ),
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: Text(
-                        'Location: ',
-                        style: keywordStyle,
-                      ),
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: Text(
-                        data.born.toString(),
-                        style: textTheme.bodyMedium,
-                      ),
-                    ),
+            padding: padLR12,
+            child: Table(
+              columnWidths: const <int, TableColumnWidth>{
+                0: FlexColumnWidth(2),
+                1: FlexColumnWidth(1),
+                2: FlexColumnWidth(2),
+                3: FlexColumnWidth(1),
+              },
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: <TableRow>[
+                TableRow(
+                  children: <TableCell>[
+                    TableCell(child: Text('Born', style: keywordStyle,)),
+                    TableCell(child: Text(data!.born.toString(), style: textTheme.bodyMedium,)),
+                    TableCell(child: Text('Crested', style: keywordStyle,)),
+                    TableCell(child: data.crested ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ) : Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Chip(
-                      label: Text(
-                        'Bought',
-                        style: textTheme.labelMedium
-                      ),
-                      avatar: data.bought ? Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      ) : Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
-                    ),
-                    Chip(
-                      label: Text(
-                        'From seed',
-                        style: textTheme.labelMedium
-                      ),
-                      avatar: data.fromSeed ? Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      ) : Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
-                    ),
-                    Chip(
-                      label: Text(
-                        'From cutting',
-                        style: textTheme.labelMedium
-                      ),
-                      avatar: data.fromCutting ? Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      ) : Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
-                    ),
+                TableRow(
+                  children: <TableCell>[
+                    TableCell(child: Text('Bought', style: keywordStyle,)),
+                    TableCell(child: data.bought ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ) : Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),),
+                    TableCell(child: Text('Variegated', style: keywordStyle,)),
+                    TableCell(child: data.variegated ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ) : Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Chip(
-                      label: Text(
-                        'Crested',
-                        style: data.crested ?
-                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
-                          textTheme.labelMedium,
-                      ),
-                      labelPadding: EdgeInsets.zero,
-                      backgroundColor: data.crested ?
-                        Colors.lightGreen[100] : Colors.grey[200],
-                    ),
-                    Chip(
-                      label: Text(
-                        'Variegated',
-                        style: data.variegated ?
-                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
-                          textTheme.labelMedium, //?.copyWith(color: Colors.red[800]),
-                      ),
-                      labelPadding: EdgeInsets.zero,
-                      backgroundColor: data.variegated ?
-                        Colors.lightGreen[100] : Colors.grey[200],
-                    ),
-                    Chip(
-                      label: Text(
-                        'Grafted',
-                        style: data.grafted ?
-                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
-                          textTheme.labelMedium, //?.copyWith(color: Colors.red[800])
-                      ),
-                      labelPadding: EdgeInsets.zero,
-                      backgroundColor: data.grafted ?
-                        Colors.lightGreen[100] : Colors.grey[200],
-                    ),
-                    Chip(
-                      label: Text(
-                        'Monstrous',
-                        style: data.monstrous ?
-                          textTheme.labelMedium?.copyWith(color: Colors.lightGreen[900]) :
-                          textTheme.labelMedium, //?.copyWith(color: Colors.red[800]),
-                      ),
-                      labelPadding: EdgeInsets.zero,
-                      backgroundColor: data.monstrous ?
-                        Colors.lightGreen[100] : Colors.grey[200],
-                    ),
+                TableRow(
+                  children: <TableCell>[
+                    TableCell(child: Text('From seed', style: keywordStyle,)),
+                    TableCell(child: data.fromSeed ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ) : Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),),
+                    TableCell(child: Text('Grafted', style: keywordStyle,)),
+                    TableCell(child: data.grafted ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ) : Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),),
+                  ],
+                ),
+                TableRow(
+                  children: <TableCell>[
+                    TableCell(child: Text('From cutting', style: keywordStyle,)),
+                    TableCell(child: data.fromCutting ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ) : Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),),
+                    TableCell(child: Text('Monstrous', style: keywordStyle,)),
+                    TableCell(child: data.monstrous ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ) : Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),),
                   ],
                 ),
               ],
             ),
           ),
-          // box5,
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //   crossAxisAlignment: CrossAxisAlignment.start,
-          //   children: [
-          //     Column(
-          //       mainAxisAlignment: MainAxisAlignment.start,
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Text.rich(
-          //           TextSpan(
-          //             children: [
-          //               TextSpan(
-          //                 text: 'Born: ',
-          //                 style: keywordStyle,
-          //               ),
-          //               TextSpan(
-          //                 text: data.born.toString(),
-          //                 style: textTheme.bodyMedium,
-          //               ),
-          //             ]
-          //           )
-          //         ),
-          //         Text.rich(
-          //           TextSpan(
-          //             children: [
-          //               TextSpan(
-          //                 text: 'Bought: ',
-          //                 style: keywordStyle,
-          //               ),
-          //               TextSpan(text: data.bought ? "Yes" : "No",),
-          //             ]
-          //           )
-          //         ),
-          //         Text.rich(
-          //           TextSpan(
-          //             children: [
-          //               TextSpan(
-          //                 text: 'From seed: ',
-          //                 style: keywordStyle,
-          //               ),
-          //               TextSpan(text: data.fromSeed ? "Yes" : "No",),
-          //             ]
-          //           )
-          //         ),
-          //         Text.rich(
-          //           TextSpan(
-          //             children: [
-          //               TextSpan(
-          //                 text: 'From cutting: ',
-          //                 style: keywordStyle,
-          //               ),
-          //               TextSpan(text: data.fromCutting ? "Yes" : "No",),
-          //             ]
-          //           )
-          //         ),
-          //         Text.rich(
-          //           TextSpan(
-          //             children: [
-          //               TextSpan(
-          //                 text: 'Location: ',
-          //                 style: keywordStyle,
-          //               ),
-          //               TextSpan(text: data.location,),
-          //             ]
-          //           )
-          //         ),
-          //       ],
-          //     ),
-          //     Column(
-          //       mainAxisAlignment: MainAxisAlignment.start,
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Text.rich(
-          //             TextSpan(
-          //                 children: [
-          //                   TextSpan(
-          //                     text: 'Crested: ',
-          //                     style: keywordStyle,
-          //                   ),
-          //                   TextSpan(text: data.crested ? "Yes" : "No",),
-          //                 ]
-          //             )
-          //         ),
-          //         Text.rich(
-          //             TextSpan(
-          //                 children: [
-          //                   TextSpan(
-          //                     text: 'Variegated: ',
-          //                     style: keywordStyle,
-          //                   ),
-          //                   TextSpan(text: data.variegated ? "Yes" : "No",),
-          //                 ]
-          //             )
-          //         ),
-          //         Text.rich(
-          //             TextSpan(
-          //                 children: [
-          //                   TextSpan(
-          //                     text: 'Grafted: ',
-          //                     style: keywordStyle,
-          //                   ),
-          //                   TextSpan(text: data.grafted ? "Yes" : "No",),
-          //                 ]
-          //             )
-          //         ),
-          //         Text.rich(
-          //             TextSpan(
-          //                 children: [
-          //                   TextSpan(
-          //                     text: 'Monstrous: ',
-          //                     style: keywordStyle,
-          //                   ),
-          //                   TextSpan(text: data.monstrous ? "Yes" : "No",),
-          //                 ]
-          //             )
-          //         ),
-          //       ],
-          //     ),
-          //   ],
-          // ),
+          Container(
+            padding: padLR12,
+            child: Row(
+              children: <Text>[
+                Text('Location: ', style: keywordStyle,),
+                Text(data.location.toString(), style: textTheme.bodyMedium,),
+              ],
+            ),
+          ),
           box10,
           Container(
             padding: padAll12,
@@ -422,7 +260,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black45),
               shape: BoxShape.rectangle,
-              borderRadius: const BorderRadius.all(Radius.circular(8),),
+                borderRadius: borderR8,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -494,7 +332,8 @@ class _SampleMainPageState extends State<SampleMainPage> {
                       MaterialPageRoute(
                           builder: (context) => TextEditPage(title: 'Note', text: data.notes ?? "-")),
                     ).then( (newText) async {
-                      updateTextField(newText);
+                      updateSampleNotes(widget.id, newText);
+                      setState(() {});
                     });
                   },
                 ),
@@ -505,117 +344,95 @@ class _SampleMainPageState extends State<SampleMainPage> {
             padding: padLR12,
             child: Text(data.notes ?? "-",),
           ),
-          box20,
-          Text(
-            'Coltivazione',
-            textAlign: TextAlign.center,
-            style: textTheme.headlineMedium,
+          box10,
+          Padding(
+            padding: padLR12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Vaso',
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineMedium,
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: COLOR_PRIMARY,
+                    size: 15,
+                  ),
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PotEditPage(fieldsMap: potMap(data)),
+                      ),
+                    ).then( (newPot) async {
+                      if (newPot != null) {
+                        updatePot(newPot);
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
-          box5,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 2,
-                child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PotEditPage(fieldsMap: potMap(data)),
-                    ),
-                  ).then( (newPot) async {
-                    if (newPot != null) {
-                      updatePot(newPot);
-                    }
-                  });
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.square_outlined,
-                      color: Colors.black38,
-                    ),
-                    Text(
-                      ' Vaso',
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontSize: 14,
+          //box5,
+          Container(
+            padding: padLR12,
+            child: Table(
+              columnWidths: const <int, TableColumnWidth>{
+                0: FlexColumnWidth(3),
+                1: FlexColumnWidth(3),
+                2: FlexColumnWidth(2),
+                3: FlexColumnWidth(2),
+              },
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: <TableRow>[
+                TableRow(
+                  children: <TableCell>[
+                    TableCell(child: Text('Materiale', style: keywordStyle, textAlign: TextAlign.center,)),
+                    TableCell(child: Text(data.material.label, textAlign: TextAlign.left,),),
+                    TableCell(child: Text('Size', style: keywordStyle, textAlign: TextAlign.center,)),
+                    TableCell(child: Text(data.size.toString(), textAlign: TextAlign.center,),),
+                  ],
+                ),
+                TableRow(
+                  children: <TableCell>[
+                    TableCell(child: Text('Forma', style: keywordStyle, textAlign: TextAlign.center,)),
+                    TableCell(child: Text(data.shape.label, textAlign: TextAlign.left,),),
+                    TableCell(child: Text('Deep', style: keywordStyle, textAlign: TextAlign.center,)),
+                    TableCell(child: data.deep ? Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      ) : Icon(
+                        Icons.close,
+                        color: Colors.red,
                       ),
                     ),
                   ],
                 ),
-              ),),
-              Expanded(
-                flex:3,
-                child: Column(
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Materiale: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.material.label,),
-                      ],
-                    ),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Forma: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.shape.label,),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              ),
-              Expanded(
-                flex:2,
-                child: Column(
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Size: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.size.toString(),),
-                      ],
-                    ),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Deep: ',
-                          style: keywordStyle,
-                        ),
-                        TextSpan(text: data.deep ? "Yes" : "No",),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              ),
-            ],
+              ],
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 1,
-                child: TextButton(
-                  onPressed: () {
+          box10,
+          Padding(
+            padding: padLR12,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Terreno',
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineMedium,
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: COLOR_PRIMARY,
+                    size: 15,
+                  ),
+                  onPressed: () async {
                     int? soilId;
                     if (soil != null) {
                       soilId = soil!.id;
@@ -627,41 +444,23 @@ class _SampleMainPageState extends State<SampleMainPage> {
                       ),
                     ).then( (newSoil) async {
                       if (newSoil != null) {
-                        updateSoil(newSoil);
+                        updateSampleSoil(widget.id, newSoil);
+                        setState(() {});
                       }
                     });
                   },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.bubble_chart,
-                        color: Colors.brown,
-                      ),
-                      Text(
-                        ' Suolo',
-                        style: TextStyle(
-                          color: Colors.black38,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ),
-              Expanded(
-                flex: 2,
-                child:  GridView.count(
-                  // crossAxisCount is the number of columns
-                  crossAxisCount: 2,
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  childAspectRatio: 5,
-                  // This creates two columns with two items in each column
-                  children: createSoilGrid(),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
+          GridView.count(
+            // crossAxisCount is the number of columns
+            crossAxisCount: 2,
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            childAspectRatio: 5,
+            // This creates two columns with two items in each column
+            children: createSoilGrid(),
           ),
           box5,
           Text(
@@ -774,17 +573,11 @@ class _SampleMainPageState extends State<SampleMainPage> {
     );
   }
 
-  Future<SampleDetails> fetchSampleData() async {
-    final db = await DBService().db;
-
-    final map = await db.rawQuery(SampleDetails.selectQuery, [widget.id]);
-    final SampleDetails sample = SampleDetails.fromMap(map[0]);
-
+  Future<SampleDetails> fetchData(int sampleId) async {
+    final SampleDetails sample = await fetchSampleData(sampleId);
     if (sample.soil != null) {
-      final mapSoil = await db.rawQuery(Soil.selectQuery, [sample.soil]);
-      soil = Soil.fromMap(mapSoil[0]);
+      soil = await fetchSoil(sample.soil!);
     }
-
     return sample;
   }
 
@@ -847,14 +640,6 @@ class _SampleMainPageState extends State<SampleMainPage> {
     );
   }
 
-  Future<Null> updateSoil(int soilId) async {
-    String query = 'UPDATE [Sample] SET [soil] = ?1 WHERE [id] = ?2;';
-
-    final db = await DBService().db;
-    await db.rawUpdate(query, [soilId, widget.id]);
-    setState(() {});
-  }
-
   Future<Null> updatePot(Map<String, dynamic> newFields) async {
     // Get the new pot ID to update the Sample table
     final int id = await getNewPotId(newFields);
@@ -901,12 +686,5 @@ class _SampleMainPageState extends State<SampleMainPage> {
         );
       });
     }
-  }
-
-  Future<Null> updateTextField(String? text) async {
-    final db = await DBService().db;
-    const query = 'UPDATE [Sample] SET [notes] = ?1 WHERE [id] = ?2';
-    await db.rawUpdate(query, [text, widget.id]);
-    setState(() {});
   }
 }

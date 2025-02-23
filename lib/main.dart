@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sukke/constants.dart';
 import 'package:sukke/samplelist.dart';
 import 'package:sukke/theme/theme.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Sukke',
+      title: appTitle,
       theme: mainTheme,
       // theme: ThemeData(
       //   colorScheme: ColorScheme.fromSeed(

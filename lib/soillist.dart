@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:sukke/db.dart';
+import 'package:sukke/theme/theme.dart';
+import 'package:sukke/theme/elements.dart';
 import 'package:sukke/objects/soilobj.dart';
 import 'package:sukke/newsoil.dart';
-import 'package:sukke/db.dart';
 
 
 class SoilSummaryPage extends StatefulWidget {
@@ -21,7 +24,10 @@ class _SoilSummaryPage extends State<SoilSummaryPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Terreni'),
+        title: Text(
+          'Terreni',
+          style: textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
@@ -45,21 +51,15 @@ class _SoilSummaryPage extends State<SoilSummaryPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(height: 8),
+            box10,
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: padLR16,
               child: Row(
                 key: const ValueKey('soil_summary_head'),
                 children: soilLabelsList(),
               ),
             ),
-            const Divider(
-              height: 10,
-              thickness: 1,
-              indent: 8,
-              endIndent: 8,
-              color: Colors.black45,
-            ),
+            dividerGray10,
             SoilSummaryTable(key: soilKey),
           ],
         ),
@@ -119,8 +119,8 @@ class _SoilSummaryPage extends State<SoilSummaryPage> {
 
     String maxIdSoilMix = '''
       UPDATE [System] SET [valueNum] = ?1
-      WHERE [key] = "maxIdSoilMix";
-      ''';
+      WHERE [key] = 'maxIdSoilMix';
+    ''';
     await db.rawUpdate(maxIdSoilMix, [newId]);
 
     setState(() {});

@@ -28,7 +28,6 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        //title: const Text('Campioni'),
         actions: [
           IconButton(
             icon: const Icon(Icons.grass),
@@ -154,7 +153,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
   Widget summaryTable(List<SampleListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
+        padding: padLR8, //const EdgeInsets.fromLTRB(8, 0, 8, 20),
         children: data.map((sample) => summaryRow(sample)).toList(),
       ),
     );
@@ -204,85 +203,85 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
   }
 }
 
-class SampleSummaryTable extends StatefulWidget {
-  const SampleSummaryTable({super.key});
-
-  @override
-  _SampleSummaryTable createState() => _SampleSummaryTable();
-}
-
-class _SampleSummaryTable extends State<SampleSummaryTable> {
-  Future<List<SampleListItem>> samples = fetchSamples();
-  Key sampleSummaryKey = UniqueKey();
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: FutureBuilder(
-        key: sampleSummaryKey,
-        future: fetchSamples(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasData) {
-            return summaryTable(snapshot.data!);
-          } else {
-            return const Text("No data available");
-          }
-        },
-      ),
-    );
-  }
-
-  Widget summaryTable(List<SampleListItem> data) {
-    return CupertinoScrollbar(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
-        children: data.map((sample) => summaryRow(sample)).toList(),
-      ),
-    );
-  }
-
-  Widget summaryRow(SampleListItem sample) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => SampleMainPage(id: sample.id)
-          ),
-        ).then((c) {
-          setState(() {
-            sampleSummaryKey = UniqueKey();
-          });
-        });
-      },
-      child: Row(
-        key: ValueKey(sample.id),
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Text(
-              sample.id.toString(),
-              textAlign: TextAlign.center,
-              style: textTheme.bodySmall,
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Text(
-              sample.name,
-              style: textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Future<List<SampleListItem>> fetchSamples() async {
-    final db = await DBService().db;
-    final maps = await db.rawQuery('SELECT [id], [name] FROM [Summary] ORDER BY [name];');
-    return maps.map((e) => SampleListItem.fromMap(e)).toList();
-  }
-}
+// class SampleSummaryTable extends StatefulWidget {
+//   const SampleSummaryTable({super.key});
+//
+//   @override
+//   _SampleSummaryTable createState() => _SampleSummaryTable();
+// }
+//
+// class _SampleSummaryTable extends State<SampleSummaryTable> {
+//   Future<List<SampleListItem>> samples = fetchSamples();
+//   Key sampleSummaryKey = UniqueKey();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Expanded(
+//       child: FutureBuilder(
+//         key: sampleSummaryKey,
+//         future: fetchSamples(),
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return const CircularProgressIndicator();
+//           } else if (snapshot.hasData) {
+//             return summaryTable(snapshot.data!);
+//           } else {
+//             return const Text("No data available");
+//           }
+//         },
+//       ),
+//     );
+//   }
+//
+//   Widget summaryTable(List<SampleListItem> data) {
+//     return CupertinoScrollbar(
+//       child: ListView(
+//         padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
+//         children: data.map((sample) => summaryRow(sample)).toList(),
+//       ),
+//     );
+//   }
+//
+//   Widget summaryRow(SampleListItem sample) {
+//     return GestureDetector(
+//       onTap: () {
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//               builder: (context) => SampleMainPage(id: sample.id)
+//           ),
+//         ).then((c) {
+//           setState(() {
+//             sampleSummaryKey = UniqueKey();
+//           });
+//         });
+//       },
+//       child: Row(
+//         key: ValueKey(sample.id),
+//         children: <Widget>[
+//           Expanded(
+//             flex: 1,
+//             child: Text(
+//               sample.id.toString(),
+//               textAlign: TextAlign.center,
+//               style: textTheme.bodySmall,
+//             ),
+//           ),
+//           Expanded(
+//             flex: 5,
+//             child: Text(
+//               sample.name,
+//               style: textTheme.bodyMedium,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   static Future<List<SampleListItem>> fetchSamples() async {
+//     final db = await DBService().db;
+//     final maps = await db.rawQuery('SELECT [id], [name] FROM [Summary] ORDER BY [name];');
+//     return maps.map((e) => SampleListItem.fromMap(e)).toList();
+//   }
+// }
