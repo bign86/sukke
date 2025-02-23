@@ -17,7 +17,7 @@ enum Event {
   String get id => id_;
   String get title => title_;
 
-  String qInsert() => "INSERT INTO Events (id, event, date) VALUES (?1, 'water', ?2);";
+  String qInsert() => "INSERT INTO Events (id, event, date) VALUES (?1, ?2, ?3);";
 }
 
 

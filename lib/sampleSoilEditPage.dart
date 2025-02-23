@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:sukke/objects/soilobj.dart';
+import 'package:sukke/theme/elements.dart';
 
 
 class SampleSoilEditPage extends StatefulWidget {
@@ -41,9 +43,9 @@ class _SampleSoilEditPage extends State<SampleSoilEditPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(height: 8),
+            box10,
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: padLR16,
               child: Row(
                 key: const ValueKey('soil_edit_head'),
                 children: soilLabelsList(),
@@ -77,8 +79,7 @@ class _SampleSoilEditPage extends State<SampleSoilEditPage> {
   }
 
   List<Widget> soilLabelsList() {
-    const box = SizedBox(height: 5);
-    List<Widget> l = [box];
+    List<Widget> l = [box5];
     for (MapEntry e in Soil.componentsNames.entries) {
       l.add(
         Expanded(
@@ -124,7 +125,7 @@ class _SampleSoilEditPage extends State<SampleSoilEditPage> {
             flex: 1,
             child: Text(
               soil.id.toString(),
-              textAlign: TextAlign.left,
+              textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
@@ -174,6 +175,13 @@ class _SampleSoilEditPage extends State<SampleSoilEditPage> {
             flex: 1,
             child: Text(
               soil.sand.toString(),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              soil.zeolite.toString(),
               textAlign: TextAlign.center,
             ),
           ),

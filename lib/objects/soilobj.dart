@@ -1,6 +1,6 @@
 import 'package:sukke/db.dart';
 
-class Soil{
+class Soil {
   final int id;
   int peat = 0;
   int cactusSoil = 0;
@@ -159,7 +159,12 @@ class Soil{
   static Future<List<Soil>> fetchSoilList() async {
     final db = await DBService().db;
     final maps = await db.rawQuery(Soil.selectAllQuery);
-    print(maps.map((e) => Soil.fromMap(e)).toList());
     return maps.map((e) => Soil.fromMap(e)).toList();
   }
+}
+
+Future<Soil> fetchSoil(int soilId) async {
+  final db = await DBService().db;
+  final mapSoil = await db.rawQuery(Soil.selectQuery, [soilId]);
+  return Soil.fromMap(mapSoil[0]);
 }

@@ -5,6 +5,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 //import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:sukke/constants.dart';
 
 class DBService {
 
@@ -30,10 +31,9 @@ class DBService {
   }
 
   Future<Database> _initDB() async {
-    final path = join(await getDatabasesPath(), "plants.db");
+    final path = join(await getDatabasesPath(), dbName);
     final exists = await databaseExists(path);
     _path = path;
-    //print(path);
 
     if (!exists) {
       // Make sure the parent directory exists
@@ -42,7 +42,7 @@ class DBService {
       } catch (_) {}
 
       // Copy from asset
-      ByteData data = await rootBundle.load(url.join("assets/", "plants.db"));
+      ByteData data = await rootBundle.load(url.join(assetsFolder, dbName));
       List<int> bytes =
       data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
 
@@ -61,3 +61,21 @@ class DBService {
     return await openDatabase(path);
   }
 }
+
+Future<int> getMaxId(String object) async {
+  final db = await DBService().db;
+
+  // Get high-water-mark id and cross check with current max to create some
+  // self-correcting logic.
+  final query = '''
+  SELECT MAX(s.[valueNum], m.[id]) AS 'maxId'
+  FROM [System] AS s
+  JOIN [Metadata] AS m
+  ON s.[key] = m.[object]
+  WHERE s.[key] = ?1;
+  ''';
+
+  final map = await db.rawQuery(query, [object]);
+  return map[0]['maxId'] as int;
+}
+

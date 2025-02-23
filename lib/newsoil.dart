@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:sukke/theme/elements.dart';
 import 'package:sukke/objects/soilobj.dart';
 import 'package:numberpicker/numberpicker.dart';
 
@@ -75,24 +77,10 @@ class _NewSoilPageState extends State<NewSoilPage> {
     for (String key in Soil.componentsNames.keys) {
       controllers[key] = 0;
     }
-    /*controllers['peat'] = 0;
-    controllers['cactusSoil'] = 0;
-    controllers['akadama'] = 0;
-    controllers['coconutFiber'] = 0;
-    controllers['lapillus'] = 0;
-    controllers['pumice'] = 0;
-    controllers['sand'] = 0;
-    controllers['zeolite'] = 0;
-    controllers['perlite'] = 0;
-    controllers['seramis'] = 0;
-    controllers['gravel'] = 0;
-    controllers['wormCasting'] = 0;
-    controllers['marl'] = 0;*/
   }
 
   List<Widget> formsList() {
-    const box = SizedBox(height: 5);
-    List<Widget> l = [box];
+    List<Widget> l = [box5];
     for (MapEntry e in Soil.componentsNames.entries) {
       l.add(
         Row(
@@ -114,7 +102,7 @@ class _NewSoilPageState extends State<NewSoilPage> {
                   itemWidth: 50,
                   haptics: true,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: borderR12,
                     border: Border.all(color: Colors.black26),
                   ),
                   onChanged: (value) => setState(() {
@@ -126,7 +114,7 @@ class _NewSoilPageState extends State<NewSoilPage> {
           ],
         )
       );
-      l.add(box);
+      l.add(box5);
     }
     return l;
   }

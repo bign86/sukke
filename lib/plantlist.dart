@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:sukke/db.dart';
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/plantpage.dart';
 import 'package:sukke/objects/plantobj.dart';
 import 'package:sukke/plantAnagraphicEditPage.dart';
@@ -30,7 +32,10 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Piante',),
+        title: Text(
+          'Piante',
+          style: textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),

@@ -2,14 +2,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+
 import 'package:sukke/db.dart';
+import 'package:sukke/constants.dart';
+import 'package:sukke/theme/theme.dart';
+import 'package:sukke/theme/elements.dart';
 
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
-
-  static const String version = '0.1.1';
-  static const String author = 'Nero';
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -22,7 +23,10 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Settings',),
+        title: Text(
+          'Settings',
+          style: textTheme.titleLarge,
+        ),
       ),
       body: Center(
         child: settingsPage(),
@@ -33,38 +37,34 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget settingsPage() {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.all(8),
+        padding: padAll8,
         children: [
-          const SizedBox(height: 30),
+          box30,
           Center(
             child: TextButton.icon(
               onPressed: () async {
                 final db = await DBService().db;
                 Share.shareXFiles(
                     [XFile(db.path)],
-                    subject: 'Backup Sukke',
-                    text: 'Allegato il database di Sukke!'
+                    subject: 'Backup $appTitle',
+                    text: 'Allegato il database di $appTitle!'
                 );
               },
               icon: const Icon(Icons.share),
               label: const Text('Backup the Database by sharing',),
             ),
           ),
-          const SizedBox(height: 30),
-          const Divider(
-            color: Colors.black26,
-            indent: 20,
-            endIndent: 20,
-          ),
-          const SizedBox(height: 30),
+          box30,
+          dividerGray20,
+          box30,
           const Center(
             child: Text(
-              'Version: ${SettingsPage.version}',
+              'Version: $appVersion',
             )
           ),
           const Center(
               child: Text(
-                'Author: ${SettingsPage.author}',
+                'Author: $appAuthor',
               )
           ),
         ],

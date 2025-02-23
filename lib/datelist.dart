@@ -13,7 +13,7 @@ class DateSummaryPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Date'),
-        actions: [],
+        actions: const [],
       ),
       body: const Center(
         child: Column(

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:multi_dropdown/models/value_item.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:sukke/db.dart';
 import 'package:sukke/objects/plantobj.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -655,7 +655,6 @@ class _PlantMainPageState extends State<PlantMainPage> {
     for (var key in anagraphicalKeys) {
       map[key] = plant.get(key);
     }
-    print(map);
     return map;
   }
 
@@ -683,7 +682,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
     }
     if (newFields.containsKey('countries')) {
       List<String> countries = newFields['countries']
-        .map<String>((ValueItem c) => c.label.toString())
+        .map<String>((DropdownItem c) => c.label.toString())
         .toList();
       arguments.add(jsonEncode(countries));
       final int pos = arguments.length;
