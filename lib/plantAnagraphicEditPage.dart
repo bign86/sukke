@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:numberpicker/numberpicker.dart';
 
+import 'package:sukke/theme/elements.dart';
 import 'package:sukke/objects/plantobj.dart';
 
 class PlantAnagraphicEditPage extends StatefulWidget {
@@ -50,7 +51,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           child: Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              padding: padLR12,
               children: formsList(),
             ),
           ),
@@ -106,7 +107,6 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
   }
 
   List<Widget> formsList() {
-    const box = SizedBox(height: 5);
     return <Widget>[
       Row(
         children: [
@@ -131,7 +131,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -155,7 +155,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -179,7 +179,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -203,7 +203,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -227,7 +227,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -247,14 +247,11 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
                 marginTop: 2,
                 maxHeight: 300,
                 header: Padding(
-                  padding: EdgeInsets.all(8),
+                  padding: padAll8,
                   child: Text(
-                    'Select a plant from the list',
+                    'Select a country from the list',
                     textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: 12,
-                      //fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 12,),
                   ),
                 ),
               ),
@@ -271,7 +268,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -294,7 +291,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -318,7 +315,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -346,7 +343,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -374,7 +371,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -406,7 +403,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(
@@ -434,7 +431,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           ),
         ],
       ),
-      box,
+      box5,
       Row(
         children: [
           const Expanded(

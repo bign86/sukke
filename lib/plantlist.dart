@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:sukke/db.dart';
 import 'package:sukke/theme/theme.dart';
+import 'package:sukke/theme/elements.dart';
 import 'package:sukke/plantpage.dart';
 import 'package:sukke/objects/plantobj.dart';
 import 'package:sukke/plantAnagraphicEditPage.dart';
@@ -17,8 +20,8 @@ class PlantSummaryPage extends StatefulWidget {
 }
 
 class _PlantSummaryPageState extends State<PlantSummaryPage> {
-  Key plantSummaryPageKey = UniqueKey();
-  Future<List<PlantListItem>> samples = fetchPlants();
+  String _query = '';
+
   static Map<String, dynamic> newAnagraphicalMap = {
     'family': '', 'genus': '', 'species': '', 'variant': null,
     'synonyms': [], 'countries': [], 'cultivar': false,
@@ -49,7 +52,9 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
                 if (newFields != null) {
                   if (newFields.isNotEmpty) {
                     newPlantToDB(newFields);
-                    setState(() {plantSummaryPageKey = UniqueKey();});
+                    setState(() {
+                      _query = '';
+                    });
                   }
                 }
               });
@@ -59,12 +64,39 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
       ),
       body: Center(
         child: Column(
-          key: plantSummaryPageKey,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(height: 8),
+            box5,
+            Padding(
+              padding: padLR8,
+              child: TextField(
+                style: textTheme.labelLarge,
+                autofocus: false,
+                showCursor: true,
+                maxLines: 1,
+                selectionHeightStyle: BoxHeightStyle.tight,
+                cursorHeight: textTheme.labelLarge?.fontSize,
+                onChanged: (value) {
+                  setState(() {
+                    _query = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  hintMaxLines: 1,
+                  isCollapsed: false,
+                  hintStyle: textTheme.labelLarge,
+                  border: OutlineInputBorder(
+                    borderRadius: borderR10,
+                  ),
+                  fillColor: Colors.grey[200],
+                  prefixIcon: Icon(Icons.search,),
+                ),
+              ),
+            ),
+            box10,
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+              padding: padLR8,
               child: Row(
                 key: ValueKey('plant_summary_head'),
                 children: <Widget>[
@@ -87,16 +119,10 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
                 ],
               ),
             ),
-            const Divider(
-              height: 10,
-              thickness: 1,
-              indent: 8,
-              endIndent: 8,
-              color: Colors.black45,
-            ),
+            dividerGray10,
             Expanded(
               child: FutureBuilder(
-                future: samples,
+                future: fetchPlants(_query),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
@@ -117,7 +143,7 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
   Widget summaryTable(List<PlantListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
+        padding: padLR8,
         children: data.map((plant) => summaryRow(plant)).toList(),
       ),
     );
@@ -130,7 +156,9 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
           context,
           MaterialPageRoute(
               builder: (context) => PlantMainPage(id: plant.id)),
-        );
+        ).then((value) => setState(() {
+          _query = '';
+        }));
       },
       child: Row(
         key: ValueKey(plant.id),
@@ -152,15 +180,24 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
     );
   }
 
-  static Future<List<PlantListItem>> fetchPlants() async {
+  static Future<List<PlantListItem>> fetchPlants(String partialSearch) async {
+    var query = 'SELECT [id], COALESCE([species], [commonName])||" "||COALESCE([variant], "") AS [name] FROM [Plant]';
+    if (partialSearch.isNotEmpty) {
+      query += '''
+       WHERE [name] LIKE "%$partialSearch%"
+       OR [id] LIKE "%$partialSearch%";
+      ''';
+    }
+    query += ' ORDER BY [name];';
+
     final db = await DBService().db;
-    final res = await db.rawQuery('SELECT [id], COALESCE([species], [commonName])||" "||COALESCE([variant], "") AS [name] FROM [Plant] ORDER BY [name];');
+    final res = await db.rawQuery(query);
     return res.map((e) => PlantListItem.fromMap(e)).toList();
   }
 
   Future<Null> newPlantToDB(Map<String, dynamic> newFields) async {
     final db = await DBService().db;
-    final List<Map> res = await db.rawQuery('SELECT [valueNum] FROM [System] WHERE [key] = "maxIdPlant";');
+    final List<Map> res = await db.rawQuery("SELECT [valueNum] FROM [System] WHERE [key] = 'maxIdPlant';");
     final int id = (res[0]['valueNum'] as int) + 1;
 
     Map<String, dynamic> data = Map.of(newAnagraphicalMap)..addAll(newFields);
@@ -171,10 +208,9 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
     [TMin], [wateringNeeds], [lightNeeds])
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
     ''';
-    final countries = newFields['countries'].map((c) => c.value).toList();
     final List arguments = <dynamic>[
       id, data['family'], data['genus'], data['species'], data['variant'],
-      jsonEncode(data['synonyms']), jsonEncode(countries),
+      jsonEncode(data['synonyms']), jsonEncode(newFields['countries']),
       data['cultivar'] ? 1 : 0, data['commonName'], data['growthRate'].value,
       data['dormantSeason'].value, data['TMin'], data['wateringNeeds'].value,
       data['lightNeeds'].value
@@ -183,10 +219,8 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
 
     String maxIdQuery = '''
     UPDATE [System] SET [valueNum] = ?1
-    WHERE [key] = "maxIdPlant";
+    WHERE [key] = 'maxIdPlant';
     ''';
     await db.rawUpdate(maxIdQuery, [id]);
-
-    setState(() {});
   }
 }
