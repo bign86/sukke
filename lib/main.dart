@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:sukke/constants.dart';
 import 'package:sukke/samplelist.dart';
@@ -32,6 +33,15 @@ class MyApp extends StatelessWidget {
       //     fontSizeDelta: 0.9,
       //   ),
       // ),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en'), // English
+        Locale('it'), // Italian
+      ],
       home: const SampleSummaryPage(),
     );
   }

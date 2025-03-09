@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 
-import 'package:sukke/objects/sampleobj.dart';
 import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/theme.dart';
+import 'package:sukke/objects/sampleobj.dart';
 
 class SampleEditPage extends StatefulWidget {
   const SampleEditPage({
@@ -34,7 +35,7 @@ class _SampleEditPageState extends State<SampleEditPage> {
             .of(context)
             .colorScheme
             .inversePrimary,
-        title: const Text('Edit - Anagrafica',),
+        title: const Text('Aggiorna esemplare',),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
@@ -49,7 +50,7 @@ class _SampleEditPageState extends State<SampleEditPage> {
           child: Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              padding: padLR16,
               children: formsList(),
             ),
           ),
@@ -82,9 +83,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('Born',),),
+            child: Center(
+              child: Text(
+                'Born',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
@@ -99,7 +105,7 @@ class _SampleEditPageState extends State<SampleEditPage> {
                 itemWidth: 70,
                 haptics: true,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: borderR12,
                   border: Border.all(color: Colors.black26),
                 ),
                 onChanged: (value) => setState(() {
@@ -113,9 +119,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('Bought',),),
+            child: Center(
+              child: Text(
+                'Bought',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
@@ -135,9 +146,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('From seed',),),
+            child: Center(
+              child: Text(
+                'From seed',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
@@ -157,9 +173,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('From cutting',),),
+            child: Center(
+              child: Text(
+                'From cutting',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
@@ -179,9 +200,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('Crested',),),
+            child: Center(
+              child: Text(
+                'Crested',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
@@ -201,9 +227,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('Variegated',),),
+            child: Center(
+              child: Text(
+                'Variegated',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
@@ -223,9 +254,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('Grafted',),),
+            child: Center(
+              child: Text(
+                'Grafted',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
@@ -245,9 +281,14 @@ class _SampleEditPageState extends State<SampleEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Center(child: Text('Monstrous',),),
+            child: Center(
+              child: Text(
+                'Monstrous',
+                style: textTheme.bodyMedium,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,

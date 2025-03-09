@@ -57,6 +57,7 @@ const textTheme = TextTheme(
   labelLarge: TextStyle(
     fontSize: 12,
     color: Colors.black87,
+    fontWeight: FontWeight.w300,
   ),
   labelMedium: TextStyle(
     fontSize: 11,

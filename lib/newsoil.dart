@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/objects/soilobj.dart';
 import 'package:numberpicker/numberpicker.dart';
 
@@ -30,7 +31,10 @@ class _NewSoilPageState extends State<NewSoilPage> {
             .of(context)
             .colorScheme
             .inversePrimary,
-        title: const Text('Add New - Soil',),
+        title: Text(
+          'Aggiungi terreno',
+          style: textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
@@ -63,7 +67,7 @@ class _NewSoilPageState extends State<NewSoilPage> {
           child: Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              padding: padLR16,
               children: formsList(),
             ),
           ),

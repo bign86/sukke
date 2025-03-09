@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
-import 'package:sukke/db.dart';
-import 'package:sukke/objects/plantobj.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:sukke/db.dart';
+import 'package:sukke/theme/elements.dart';
+import 'package:sukke/objects/plantobj.dart';
 import 'package:sukke/texteditpage.dart';
 import 'package:sukke/plantAnagraphicEditPage.dart';
 import 'package:sukke/plantlinkseditpage.dart';
@@ -102,7 +104,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(10, 8, 10, 20),
         children: [
-          const SizedBox(height: 5),
+          box5,
           Text(
             '${data?.species ??
                 data?.commonName} ${data?.variant ?? ""}',
@@ -151,7 +153,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,14 +288,14 @@ class _PlantMainPageState extends State<PlantMainPage> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          box10,
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: padAll12,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(color: Colors.black45),
               shape: BoxShape.rectangle,
-              borderRadius: const BorderRadius.all(Radius.circular(8),),
+              borderRadius: borderR8,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -359,7 +361,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
               fontSize: 16,
             ),
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             children: [
               const Text(
@@ -392,7 +394,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
             data.habitat ?? "-",
             textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             children: [
               const Text(
@@ -425,7 +427,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
             data.altitude ?? "-",
             textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             children: [
               const Text(
@@ -491,7 +493,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
             data.light ?? "-",
             textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             children: [
               const Text(
@@ -524,7 +526,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
             data.wateringNotes ?? "-",
             textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             children: [
               const Text(
@@ -557,7 +559,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
             data.propagation ?? "-",
             textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             children: [
               const Text(
@@ -590,7 +592,7 @@ class _PlantMainPageState extends State<PlantMainPage> {
             data.notes ?? "-",
             textAlign: TextAlign.left,
           ),
-          const SizedBox(height: 5),
+          box5,
           Row(
             children: [
               const Text(

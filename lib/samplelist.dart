@@ -94,7 +94,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
           children: <Widget>[
             box5,
             Text(
-              'Le mie piante',
+              'I miei esemplari',
               textAlign: TextAlign.center,
               style: textTheme.titleLarge,
             ),
@@ -185,7 +185,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
 
   Widget summaryRow(SampleListItem sample) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         Navigator.push(
           context,
           MaterialPageRoute(

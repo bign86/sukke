@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sukke/theme/elements.dart';
+
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/db.dart';
 import 'package:sukke/objects/dateobj.dart';
 import 'package:sukke/samplepage.dart';
@@ -12,16 +15,19 @@ class DateSummaryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Date'),
+        title: Text(
+          'Date',
+          style: textTheme.titleLarge,
+        ),
         actions: const [],
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height: 8),
+            box10,
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: padLR16,
               child: Row(
                 key: ValueKey('date_summary_head'),
                 children: <Widget>[
@@ -30,7 +36,7 @@ class DateSummaryPage extends StatelessWidget {
                     child: Text(
                       'ID',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                   Expanded(
@@ -38,7 +44,7 @@ class DateSummaryPage extends StatelessWidget {
                     child: Text(
                       'Water',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                   Expanded(
@@ -46,7 +52,7 @@ class DateSummaryPage extends StatelessWidget {
                     child: Text(
                       'Fertilize',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                   Expanded(
@@ -54,7 +60,7 @@ class DateSummaryPage extends StatelessWidget {
                     child: Text(
                       'Repot',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                   Expanded(
@@ -62,19 +68,13 @@ class DateSummaryPage extends StatelessWidget {
                     child: Text(
                       'Pests',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                 ],
               ),
             ),
-            Divider(
-              height: 10,
-              thickness: 1,
-              indent: 8,
-              endIndent: 8,
-              color: Colors.black45,
-            ),
+            dividerGray10,
             DateSummaryTable(),
           ],
         ),
@@ -114,7 +114,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
   Widget summaryTable(List<DateListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
+        padding: padLR8,
         children: data.map((date) => summaryRow(date)).toList(),
       ),
     );
@@ -138,7 +138,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
             child: Text(
               date.id.toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: textTheme.bodySmall,
             ),
           ),
           Expanded(
@@ -146,6 +146,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
             child: Text(
               (date.water ?? '-').toString(),
               textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
             ),
           ),
           Expanded(
@@ -153,6 +154,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
             child: Text(
               (date.fertilize ?? '-').toString(),
               textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
             ),
           ),
           Expanded(
@@ -160,6 +162,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
             child: Text(
             (date.repot ?? '-').toString(),
               textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
             ),
           ),
           Expanded(
@@ -167,6 +170,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
             child: Text(
               (date.pests ?? '-').toString(),
               textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
             ),
           ),
         ],

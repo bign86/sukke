@@ -93,6 +93,16 @@ Future<int> getNewPotId(Map<String, dynamic> newFields) async {
   return newId;
 }
 
+Future<Null> updatePot(Map<String, dynamic> newFields, int sampleId) async {
+  // Get the new pot ID to update the Sample table
+  final int id = await getNewPotId(newFields);
+
+  // Update the sample table with the new pot
+  String query = 'UPDATE [Sample] SET [pot] = ?1 WHERE [id] = ?2;';
+
+  final db = await DBService().db;
+  await db.rawUpdate(query, [id, sampleId]);
+}
 
 enum PotShape {
   square('Square', 1),

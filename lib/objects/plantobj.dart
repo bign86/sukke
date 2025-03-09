@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:sukke/db.dart';
+
+
 class PlantListItem{
   final int id;
   final String name;
@@ -14,14 +17,30 @@ class PlantListItem{
     return {'id':id, 'name':name};
   }
 
-  // Implement toString to make it easier to see information about
-  // each dog when using the print statement.
+  /// The toString method is implemented to display the PlantListItem object in
+  /// a readable format, specifically when printing or debugging.
   @override
   String toString() {
     return 'Plant{id: $id, name: $name}';
   }
 }
 
+/// Retrieves a list of plants from the database.
+///
+/// This function queries the database to fetch a list of plants,
+/// including their ID and a constructed name from species, common name, and variant.
+Future<List<PlantListItem>> fetchPlantList() async {
+  final db = await DBService().db;
+  final q = '''
+    SELECT [id], COALESCE([species], [commonName])||' '||COALESCE([variant], '') AS [name]
+    FROM [Plant] ORDER BY [name];
+  ''';
+  final res = await db.rawQuery(q);
+  return res.map((e) => PlantListItem.fromMap(e)).toList();
+}
+
+
+/// Represents a detailed plant object with various attributes.
 class Plant {
   final int id;
   final String family;
@@ -118,8 +137,8 @@ class Plant {
     //throw ArgumentError('Property $propertyName not found');
   }
 
-  // Implement toString to make it easier to see information about
-  // each dog when using the print statement.
+  /// The toString method is implemented to display the Plant object in
+  /// a readable format, specifically when printing or debugging.
   @override
   String toString() {
     return 'Plant{id: $id, species: ${species ?? ""}, commonName: ${commonName ?? ""}}';
@@ -138,6 +157,50 @@ class Plant {
     WHERE [id]=?1;
   ''';
 }
+
+Future<Plant> fetchPlantData(int plantId) async {
+  final db = await DBService().db;
+  final map = await db.rawQuery(Plant.selectQuery, [plantId]);
+  return Plant.fromMap(map[0]);
+}
+
+Future<Null> newPlantToDB(Map<String, dynamic> newFields) async {
+  final db = await DBService().db;
+  final List<Map> res = await db.rawQuery("SELECT [valueNum] FROM [System] WHERE [key] = 'maxIdPlant';");
+  final int id = (res[0]['valueNum'] as int) + 1;
+
+  Map<String, dynamic> data = Map.of(newAnagraphicalMap)..addAll(newFields);
+  String newPlantQuery = '''
+    INSERT INTO [Plant]
+    ([id], [family], [genus], [species], [variant], [synonyms],
+    [countries], [cultivar], [commonName], [growthRate], [dormantSeason],
+    [TMin], [wateringNeeds], [lightNeeds])
+    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);
+    ''';
+  final List arguments = <dynamic>[
+    id, data['family'], data['genus'], data['species'], data['variant'],
+    jsonEncode(data['synonyms']), jsonEncode(newFields['countries']),
+    data['cultivar'] ? 1 : 0, data['commonName'], data['growthRate'].value,
+    data['dormantSeason'].value, data['TMin'], data['wateringNeeds'].value,
+    data['lightNeeds'].value
+  ];
+  await db.rawInsert(newPlantQuery, arguments);
+
+  String maxIdQuery = '''
+    UPDATE [System] SET [valueNum] = ?1
+    WHERE [key] = 'maxIdPlant';
+    ''';
+  await db.rawUpdate(maxIdQuery, [id]);
+}
+
+Map<String, dynamic> newAnagraphicalMap = {
+  'family': '', 'genus': '', 'species': '', 'variant': null,
+  'synonyms': [], 'countries': [], 'cultivar': false,
+  'commonName': '', 'growthRate': GrowthRate.na,
+  'dormantSeason': DormantSeason.na, 'TMin': 0,
+  'wateringNeeds': Needs.medium, 'lightNeeds': Needs.medium,
+};
+
 
 /*enum YesNo {
   yes('Yes', true),

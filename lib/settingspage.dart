@@ -57,15 +57,15 @@ class _SettingsPageState extends State<SettingsPage> {
           box30,
           dividerGray20,
           box30,
-          const Center(
-            child: Text(
-              'Version: $appVersion',
-            )
+          Text(
+            'Version: $appVersion',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium,
           ),
-          const Center(
-              child: Text(
-                'Author: $appAuthor',
-              )
+          Text(
+            'Author: $appAuthor',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium,
           ),
         ],
       ),

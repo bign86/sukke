@@ -4,6 +4,7 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/objects/plantobj.dart';
 
 class PlantAnagraphicEditPage extends StatefulWidget {
@@ -36,7 +37,10 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
             .of(context)
             .colorScheme
             .inversePrimary,
-        title: const Text('Edit - Anagrafica',),
+        title: Text(
+          'Anagrafica pianta',
+          style: textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
@@ -110,15 +114,18 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
     return <Widget>[
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Family',),
+            child: Text(
+              'Family',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
             child: TextField(
               controller: controllers['family'],
-              style: const TextStyle(fontSize: 12,),
+              style: textTheme.bodyMedium,
               onChanged: (String value) {
                 newFields['family'] = value;
               },
@@ -142,7 +149,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
             flex: 3,
             child: TextField(
               controller: controllers['genus'],
-              style: const TextStyle(fontSize: 12,),
+              style: textTheme.bodyMedium,
               onChanged: (String value) {
                 newFields['genus'] = value;
               },
@@ -158,15 +165,18 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Species',),
+            child: Text(
+              'Species',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
             child: TextField(
               controller: controllers['species'],
-              style: const TextStyle(fontSize: 12,),
+              style: textTheme.bodyMedium,
               onChanged: (String value) {
                 newFields['species'] = value;
               },
@@ -182,15 +192,18 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Variant',),
+            child: Text(
+              'Variant',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
             child: TextField(
               controller: controllers['variant'],
-              style: const TextStyle(fontSize: 12,),
+              style: textTheme.bodyMedium,
               onChanged: (String value) {
                 newFields['variant'] = value;
               },
@@ -206,15 +219,18 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Sinonimi',),
+            child: Text(
+              'Sinonimi',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
             child: TextField(
               controller: controllers['synonyms'],
-              style: const TextStyle(fontSize: 12,),
+              style: textTheme.bodyMedium,
               onChanged: (String value) {
                 newFields['synonyms'] = value.split(',').map((name) => name.trim()).toList();
               },
@@ -230,9 +246,12 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Paesi',),
+            child: Text(
+              'Paesi',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -243,7 +262,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
               onSelectionChange: (options) {
                 newFields['countries'] = options;
               },
-              dropdownDecoration: const DropdownDecoration(
+              dropdownDecoration: DropdownDecoration(
                 marginTop: 2,
                 maxHeight: 300,
                 header: Padding(
@@ -251,7 +270,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
                   child: Text(
                     'Select a country from the list',
                     textAlign: TextAlign.start,
-                    style: TextStyle(fontSize: 12,),
+                    style: textTheme.bodyMedium,
                   ),
                 ),
               ),
@@ -271,9 +290,12 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Cultivar',),
+            child: Text(
+              'Cultivar',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -294,15 +316,18 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Common names',),
+            child: Text(
+              'Common names',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
             child: TextField(
               controller: controllers['commonName'],
-              style: const TextStyle(fontSize: 12,),
+              style: textTheme.bodyMedium,
               onChanged: (String value) {
                 newFields['commonName'] = value.trim();
               },
@@ -318,9 +343,12 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Growing speed',),
+            child: Text(
+              'Growing speed',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -346,9 +374,12 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Dormant season',),
+            child: Text(
+              'Dormant season',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -374,9 +405,12 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('T Min',),
+            child: Text(
+              'T Min',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -391,7 +425,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
                 itemWidth: 30,
                 haptics: true,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: borderR12,
                   border: Border.all(color: Colors.black26),
                 ),
                 onChanged: (value) => setState(() {
@@ -406,9 +440,12 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Water',),
+            child: Text(
+              'Water',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -434,9 +471,12 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Light',),
+            child: Text(
+              'Light',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,

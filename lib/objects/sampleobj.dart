@@ -226,6 +226,42 @@ Future<SampleDetails> fetchSampleData(int sampleId) async {
   return SampleDetails.fromMap(map[0]);
 }
 
+Future<Null> newSampleToDB(Map<String, dynamic> newFields) async {
+  // Extract the info for the pot
+  Map<String, dynamic> potData = {
+    'material': newFields['material'],
+    'shape': newFields['shape'],
+    'deep': newFields['deep'],
+    'size': newFields['size']
+  };
+  final int potId = await getNewPotId(potData);
+  final int sampleId = await getMaxId('maxIdSample') + 1;
+
+  final db = await DBService().db;
+
+  // Add the new sample to the DB
+  String newSampleQuery = '''
+    INSERT INTO [Sample]
+    ([id], [plant], [pot], [born], [crested], [variegated],
+    [grafted], [monstrous], [bought], [fromSeed], [fromCutting])
+    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);
+    ''';
+  final List<dynamic> arguments = <dynamic>[
+    sampleId, newFields['plant'][0], potId, newFields['born'],
+    newFields['crested'], newFields['variegated'], newFields['grafted'],
+    newFields['monstrous'], newFields['bought'], newFields['fromSeed'],
+    newFields['fromCutting']
+  ];
+  await db.rawInsert(newSampleQuery, arguments);
+
+  // Update the max id of samples
+  String maxIdQuery = '''
+    UPDATE [System] SET [valueNum] = ?1
+    WHERE [key] = 'maxIdSample';
+    ''';
+  await db.rawUpdate(maxIdQuery, [sampleId]);
+}
+
 Future<Null> updateSample(int sampleId, Map<String, dynamic> newFields) async {
   String query = '''
     UPDATE [Sample] SET
