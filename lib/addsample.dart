@@ -43,6 +43,8 @@ class _SampleAddPage extends State<SampleAddPage> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
+              controllers['plant'] = controllers['plant'].selectedItems[0].value;
+
               if (
                 controllers['material'] == null ||
                 controllers['shape'] == null
@@ -54,10 +56,7 @@ class _SampleAddPage extends State<SampleAddPage> {
                     content: const Text('Il vaso DEVE essere inizializzato!'),
                   )
                 );
-              } else if (
-                controllers['plant'] == null ||
-                controllers['plant'].isEmpty
-              ) {
+              } else if (controllers['plant'] == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     duration: errorDuration,
@@ -111,7 +110,7 @@ class _SampleAddPage extends State<SampleAddPage> {
     controllers['shape'] = PotShape.toList[0];
 
     // List controllers
-    controllers['plant'] = null;
+    controllers['plant'] = MultiSelectController<String>();
 
     // Numeric controllers
     controllers['born'] = DateTime.now().year;
@@ -130,7 +129,7 @@ class _SampleAddPage extends State<SampleAddPage> {
       Center(
         child: MultiDropdown(
           items: plants,
-          controller: MultiSelectController<String>(), //controllers['plantControl'],
+          controller: controllers['plant'],
           singleSelect: true,
           validator: (option) {
             if (option == null || option.isEmpty) {
@@ -138,9 +137,7 @@ class _SampleAddPage extends State<SampleAddPage> {
             }
             return null;
           },
-          onSelectionChange: (options) {
-            controllers['plant'] = options;
-          },
+          //onSelectionChange: (options) {},
           dropdownDecoration: DropdownDecoration(
             marginTop: 2,
             maxHeight: 300,

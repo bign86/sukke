@@ -247,7 +247,7 @@ Future<Null> newSampleToDB(Map<String, dynamic> newFields) async {
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);
     ''';
   final List<dynamic> arguments = <dynamic>[
-    sampleId, newFields['plant'][0], potId, newFields['born'],
+    sampleId, newFields['plant'], potId, newFields['born'],
     newFields['crested'], newFields['variegated'], newFields['grafted'],
     newFields['monstrous'], newFields['bought'], newFields['fromSeed'],
     newFields['fromCutting']

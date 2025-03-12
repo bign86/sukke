@@ -1,7 +1,11 @@
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'package:sukke/db.dart';
 import 'package:sukke/constants.dart';
@@ -54,6 +58,19 @@ class _SettingsPageState extends State<SettingsPage> {
               label: const Text('Backup the Database by sharing',),
             ),
           ),
+          box5,
+          Center(
+            child: TextButton.icon(
+              onPressed: () async {
+                final err = await substituteDB();
+                if (err != null && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(err);
+                }
+              },
+              icon: const Icon(Icons.upload),
+              label: const Text('Upload a backup Database',),
+            ),
+          ),
           box30,
           dividerGray20,
           box30,
@@ -72,3 +89,47 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 }
+
+Future<SnackBar?> substituteDB() async {
+  // Pick the file
+  FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+  // If a file has been picked
+  if (result != null) {
+    File newDB = File(result.files.single.path!);
+    final dbPath = DBService().path();
+
+    try {
+
+      // If the DB exists eliminate it and substitute
+      if (await databaseExists(dbPath!)) {
+        await deleteDatabase(dbPath);
+        await newDB.copy(dbPath);
+
+      // If it does not exists send out an error
+      } else {
+        return SnackBar(
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.red[700],
+          content: const Text('Error in substituting the Database'),
+        );
+      }
+
+      // If everything is well just return
+      return null;
+
+    // In case of error print out an error
+    } catch (err) {
+      return SnackBar(
+        duration: const Duration(seconds: 3),
+        backgroundColor: Colors.red[700],
+        content: Text('Error in substituting the Database with error:\n$err'),
+      );
+    }
+
+  } else {
+    // User canceled the picker
+    return null;
+  }
+}
+
