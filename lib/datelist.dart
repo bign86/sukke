@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sukke/theme/elements.dart';
+
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/db.dart';
 import 'package:sukke/objects/dateobj.dart';
 import 'package:sukke/samplepage.dart';
@@ -12,69 +15,58 @@ class DateSummaryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Date'),
+        title: Text(
+          'Date',
+          style: textTheme.titleLarge,
+        ),
         actions: const [],
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height: 8),
+            box10,
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: padLR16,
               child: Row(
                 key: ValueKey('date_summary_head'),
                 children: <Widget>[
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Text(
                       'ID',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                   Expanded(
                     flex: 3,
+                    child: Text(
+                      'Name',
+                      textAlign: TextAlign.center,
+                      style: textTheme.labelLarge,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
                     child: Text(
                       'Water',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                   Expanded(
-                    flex: 3,
+                    flex: 2,
                     child: Text(
                       'Fertilize',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Repot',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Pests',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w300),
+                      style: textTheme.labelLarge,
                     ),
                   ),
                 ],
               ),
             ),
-            Divider(
-              height: 10,
-              thickness: 1,
-              indent: 8,
-              endIndent: 8,
-              color: Colors.black45,
-            ),
+            dividerGray10,
             DateSummaryTable(),
           ],
         ),
@@ -91,13 +83,14 @@ class DateSummaryTable extends StatefulWidget {
 }
 
 class _DateSummaryTable extends State<DateSummaryTable> {
-  //Future<List<DateListItem>> dates = fetchDates();
+  Key datesSummaryPageKey = UniqueKey();
+  Future<List<DateListItem>> fetchedDates = fetchDates();
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: FutureBuilder(
-        future: fetchDates(),
+        future: fetchedDates,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -114,7 +107,7 @@ class _DateSummaryTable extends State<DateSummaryTable> {
   Widget summaryTable(List<DateListItem> data) {
     return CupertinoScrollbar(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 20),
+        padding: padLR8,
         children: data.map((date) => summaryRow(date)).toList(),
       ),
     );
@@ -122,51 +115,50 @@ class _DateSummaryTable extends State<DateSummaryTable> {
 
   Widget summaryRow(DateListItem date) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => SampleMainPage(id: date.id)
           ),
         );
+        setState(() {
+          fetchedDates = fetchDates();
+        });
       },
       child: Row(
         key: ValueKey(date.id),
         children: <Widget>[
           Expanded(
-            flex: 2,
+            flex: 1,
             child: Text(
               date.id.toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: textTheme.bodySmall,
             ),
           ),
           Expanded(
             flex: 3,
+            child: Text(
+              date.name.toString(),
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
+            ),
+          ),
+          Expanded(
+            flex: 2,
             child: Text(
               (date.water ?? '-').toString(),
               textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 2,
             child: Text(
               (date.fertilize ?? '-').toString(),
               textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-            (date.repot ?? '-').toString(),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              (date.pests ?? '-').toString(),
-              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
             ),
           ),
         ],
@@ -177,9 +169,8 @@ class _DateSummaryTable extends State<DateSummaryTable> {
   static Future<List<DateListItem>> fetchDates() async {
     const String query = '''
     SELECT
-    	[id], [waterDelta] AS water, [repotDelta] AS repot,
-    	[fertilizeDelta] AS fertilize, [pestsDelta] AS pests
-    FROM [Summary] ORDER BY [id];
+    	[id], [name], [waterDelta] AS water, [fertilizeDelta] AS fertilize
+    FROM [Summary] ORDER BY [waterDelta] desc;
     ''';
     final db = await DBService().db;
     final maps = await db.rawQuery(query);

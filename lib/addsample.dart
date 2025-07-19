@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:numberpicker/numberpicker.dart';
 
-import 'package:sukke/db.dart';
 import 'package:sukke/objects/potobj.dart';
 import 'package:sukke/objects/plantobj.dart';
+import 'package:sukke/objects/sampleobj.dart';
 import 'package:sukke/theme/elements.dart';
 import 'package:sukke/theme/theme.dart';
 
@@ -17,7 +17,7 @@ class SampleAddPage extends StatefulWidget {
 }
 
 class _SampleAddPage extends State<SampleAddPage> {
-  Future<List<DropdownItem<String>>> plants = fetchPlants();
+  Future<List<DropdownItem<String>>> plants = generatePlantsList();
   Map<String, dynamic> controllers = {};
   final _formKey = GlobalKey<FormState>();
 
@@ -35,29 +35,31 @@ class _SampleAddPage extends State<SampleAddPage> {
             .of(context)
             .colorScheme
             .inversePrimary,
-        title: const Text('New Sample',),
+        title: Text(
+          'Nuovo Esemplare',
+          style: textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
+              controllers['plant'] = controllers['plant'].selectedItems[0].value;
+
               if (
                 controllers['material'] == null ||
                 controllers['shape'] == null
               ) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    duration: const Duration(seconds: 3),
+                    duration: errorDuration,
                     backgroundColor: Colors.red[700],
                     content: const Text('Il vaso DEVE essere inizializzato!'),
                   )
                 );
-              } else if (
-                controllers['plant'] == null ||
-                controllers['plant'].isEmpty
-              ) {
+              } else if (controllers['plant'] == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    duration: const Duration(seconds: 3),
+                    duration: errorDuration,
                     backgroundColor: Colors.red[700],
                     content: const Text('Non hai selezionato alcuna pianta!'),
                   )
@@ -108,7 +110,7 @@ class _SampleAddPage extends State<SampleAddPage> {
     controllers['shape'] = PotShape.toList[0];
 
     // List controllers
-    controllers['plant'] = null;
+    controllers['plant'] = MultiSelectController<String>();
 
     // Numeric controllers
     controllers['born'] = DateTime.now().year;
@@ -118,30 +120,25 @@ class _SampleAddPage extends State<SampleAddPage> {
   ListView formsList(List<DropdownItem<String>> plants) {
     List<Widget> l = <Widget>[
       box10,
-      const Center(
-        child: Text(
-          'Plant',
-          style: TextStyle(
-            color: Colors.black38,
-            fontSize: 18,
-          ),
-        ),
+      Text(
+        'Pianta',
+        textAlign: TextAlign.center,
+        style: textTheme.titleSmall,
       ),
       box10,
       Center(
         child: MultiDropdown(
           items: plants,
-          controller: MultiSelectController<String>(), //controllers['plantControl'],
+          controller: controllers['plant'],
           singleSelect: true,
+          searchEnabled: true,
           validator: (option) {
             if (option == null || option.isEmpty) {
               return 'Select a plant';
             }
             return null;
           },
-          onSelectionChange: (options) {
-            controllers['plant'] = options;
-          },
+          //onSelectionChange: (options) {},
           dropdownDecoration: DropdownDecoration(
             marginTop: 2,
             maxHeight: 300,
@@ -166,21 +163,22 @@ class _SampleAddPage extends State<SampleAddPage> {
         ),
       ),
       box5,
-      const Center(
-        child: Text(
-          'Campione',
-          style: TextStyle(
-            color: Colors.black38,
-            fontSize: 18,
-          ),
-        ),
+      dividerGray20,
+      box5,
+      Text(
+        'Campione',
+        textAlign: TextAlign.center,
+        style: textTheme.titleSmall,
       ),
       box10,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Born',),
+            child: Text(
+              'Born',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -195,7 +193,7 @@ class _SampleAddPage extends State<SampleAddPage> {
                 itemWidth: 70,
                 haptics: true,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: borderR12,
                   border: Border.all(color: Colors.black26),
                 ),
                 onChanged: (value) => setState(() {
@@ -209,9 +207,12 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Bought',),
+            child: Text(
+              'Bought',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -231,9 +232,12 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('From seed',),
+            child: Text(
+              'From seed',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -253,9 +257,12 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('From cutting',),
+            child: Text(
+              'From cutting',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -275,9 +282,12 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Crested',),
+            child: Text(
+              'Crested',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -297,9 +307,12 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Variegated',),
+            child: Text(
+              'Variegated',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -319,9 +332,12 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Grafted',),
+            child: Text(
+              'Grafted',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -341,9 +357,12 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: Text('Monstrous',),
+            child: Text(
+              'Monstrous',
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -361,25 +380,19 @@ class _SampleAddPage extends State<SampleAddPage> {
         ],
       ),
       box5,
-      const Divider(
-        height: 30,
-        thickness: 1,
-        indent: 20,
-        endIndent: 20,
-        color: Colors.black45,
-      ),
+      dividerGray20,
       box5,
-      const Center(
-        child: Text(
-          'Vaso',
-          style: TextStyle(
-            color: Colors.black38,
-            fontSize: 18,
-          ),
-        ),
+      Text(
+        'Vaso',
+        textAlign: TextAlign.center,
+        style: textTheme.titleSmall,
       ),
       box10,
-      Center(child: Text('Materiale',),),
+      Text(
+        'Materiale',
+        textAlign: TextAlign.center,
+        style: textTheme.bodyLarge,
+      ),
       box5,
       Center(
         child: SegmentedButton<PotMaterial>(
@@ -399,7 +412,11 @@ class _SampleAddPage extends State<SampleAddPage> {
         ),
       ),
       box5,
-      Center(child: Text('Forma',),),
+      Text(
+        'Forma',
+        textAlign: TextAlign.center,
+        style: textTheme.bodyLarge,
+      ),
       box5,
       Center(
         child: SegmentedButton<PotShape>(
@@ -421,9 +438,13 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 2,
-            child: Center(child: Text('Size',),),
+            child: Text(
+              'Size',
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -452,9 +473,13 @@ class _SampleAddPage extends State<SampleAddPage> {
       box5,
       Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 2,
-            child: Center(child: Text('Deep',),),
+            child: Text(
+              'Deep',
+              textAlign: TextAlign.center,
+              style: textTheme.bodyMedium,
+            ),
           ),
           Expanded(
             flex: 3,
@@ -471,57 +496,19 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
+      box10,
     ];
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      padding: padLR16,
       children: l,
     );
   }
 
-  static Future<List<DropdownItem<String>>> fetchPlants() async {
-    final db = await DBService().db;
-    final res = await db.rawQuery("SELECT [id], COALESCE([species], [commonName])||' '||COALESCE([variant], '') AS [name] FROM [Plant] ORDER BY [name];");
-
-    List<PlantListItem> plantsList = res.map((e) => PlantListItem.fromMap(e)).toList();
+  static Future<List<DropdownItem<String>>> generatePlantsList() async {
+    List<PlantListItem> plantsList = await fetchPlantList();
     return plantsList.map<DropdownItem<String>>(
             (c) => DropdownItem<String>(label: c.name.toString(), value: c.id.toString())
     ).toList();
-  }
-
-  Future<Null> newSampleToDB(Map<String, dynamic> newFields) async {
-    // Extract the info for the pot
-    Map<String, dynamic> potData = {
-      'material': newFields['material'],
-      'shape': newFields['shape'],
-      'deep': newFields['deep'],
-      'size': newFields['size']
-    };
-    final int potId = await getNewPotId(potData);
-    final int sampleId = await getMaxId('maxIdSample') + 1;
-
-    final db = await DBService().db;
-
-    // Add the new sample to the DB
-    String newSampleQuery = '''
-    INSERT INTO [Sample]
-    ([id], [plant], [pot], [born], [crested], [variegated],
-    [grafted], [monstrous], [bought], [fromSeed], [fromCutting])
-    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);
-    ''';
-    final List<dynamic> arguments = <dynamic>[
-      sampleId, newFields['plant'][0], potId, newFields['born'],
-      newFields['crested'], newFields['variegated'], newFields['grafted'],
-      newFields['monstrous'], newFields['bought'], newFields['fromSeed'],
-      newFields['fromCutting']
-    ];
-    await db.rawInsert(newSampleQuery, arguments);
-
-    // Update the max id of samples
-    String maxIdQuery = '''
-    UPDATE [System] SET [valueNum] = ?1
-    WHERE [key] = 'maxIdSample';
-    ''';
-    await db.rawUpdate(maxIdQuery, [sampleId]);
   }
 }

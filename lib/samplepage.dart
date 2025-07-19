@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:clean_calendar/clean_calendar.dart';
 import 'package:intl/intl.dart';
 
 import 'package:sukke/db.dart';
@@ -32,6 +33,8 @@ class _SampleMainPageState extends State<SampleMainPage> {
     fontStyle: FontStyle.italic,
   );
   Soil? soil;
+  List<DateTime>? selectedDates;
+  num? wateringFrequency;
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +372,9 @@ class _SampleMainPageState extends State<SampleMainPage> {
                       ),
                     ).then( (newPot) async {
                       if (newPot != null) {
-                        updatePot(newPot);
+                        setState(() {
+                          updatePot(newPot, widget.id);
+                        });
                       }
                     });
                   },
@@ -475,17 +480,14 @@ class _SampleMainPageState extends State<SampleMainPage> {
                 flex: 1,
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Innaffiato',
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontSize: 14,
-                      ),
+                      style: textTheme.headlineSmall,
                     ),
                     Text(' ${data.water ?? "-"}'),
                     Text('${data.waterDelta ?? "-"} gg'),
                     IconButton(
-                      onPressed: () async {addEvent(Event.water);},
+                      onPressed: () async { addEvent(Event.water); },
                       icon: Icon(
                         Icons.add_circle_outline,
                         color: Colors.grey[600],
@@ -498,12 +500,9 @@ class _SampleMainPageState extends State<SampleMainPage> {
                 flex: 1,
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Concimato',
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontSize: 14,
-                      ),
+                      style: textTheme.headlineSmall,
                     ),
                     Text(' ${data.fertilize ?? "-"}'),
                     Text('${data.fertilizeDelta ?? "-"} gg'),
@@ -521,17 +520,14 @@ class _SampleMainPageState extends State<SampleMainPage> {
                 flex: 1,
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Insetti',
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontSize: 14,
-                      ),
+                      style: textTheme.headlineSmall,
                     ),
                     Text(' ${data.pests ?? "-"}'),
                     Text('${data.pestsDelta ?? "-"} gg'),
                     IconButton(
-                      onPressed: () async {addEvent(Event.pests);},
+                      onPressed: () async { addEvent(Event.pests); },
                       icon: Icon(
                         Icons.add_circle_outline,
                         color: Colors.grey[600],
@@ -544,12 +540,9 @@ class _SampleMainPageState extends State<SampleMainPage> {
                 flex: 1,
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Rinvaso',
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontSize: 14,
-                      ),
+                      style: textTheme.headlineSmall,
                     ),
                     Text(' ${data.repot ?? "-"}'),
                     Text('${data.repotDelta ?? "-"} gg'),
@@ -568,17 +561,69 @@ class _SampleMainPageState extends State<SampleMainPage> {
             ],
           ),
           box10,
+          Text(
+            'Calendario delle innaffiature',
+            textAlign: TextAlign.center,
+            style: textTheme.headlineSmall,
+          ),
+          box10,
+          Text(
+            'Average water frequency: ${wateringFrequency.toString()} days',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium,
+          ),
+          box5,
+          Padding(
+            padding: padLR12,
+            child: CleanCalendar(
+              calendarDatesSectionMaxHeight: 180,
+              datePickerCalendarView: DatePickerCalendarView.monthView,
+              enableDenseViewForDates: true,
+              enableDenseSplashForDates: true,
+              dateSelectionMode: DatePickerSelectionMode.singleOrMultiple,
+              onCalendarViewDate: (DateTime calendarViewDate) {
+                // print(calendarViewDate);
+              },
+              selectedDatesProperties: DatesProperties(
+                disable: true,  // To disable taps on selected dates.
+              ),
+              selectedDates: selectedDates,
+              onSelectedDates: (List<DateTime> value) {
+                setState(() {
+                  if (selectedDates!.contains(value.first)) {
+                    selectedDates!.remove(value.first);
+                  } else {
+                    selectedDates!.add(value.first);
+                  }
+                });
+              },
+            ),
+          ),
+          box10,
         ],
       ),
     );
   }
 
   Future<SampleDetails> fetchData(int sampleId) async {
+    selectedDates = await fetchWateringDates(sampleId);
     final SampleDetails sample = await fetchSampleData(sampleId);
     if (sample.soil != null) {
       soil = await fetchSoil(sample.soil!);
     }
+    wateringFrequency = await calculateWateringFrequency(sampleId);
     return sample;
+  }
+
+  Future<List<DateTime>> fetchWateringDates(int sampleId) async {
+    final db = await DBService().db;
+    final q = '''SELECT date FROM [Events] WHERE [event] = "water" AND [id] = ?1;''';
+    final List<Map<String, dynamic>> map = await db.rawQuery(q, [sampleId]);
+    List<DateTime> dateTimes = map.map((e) {
+      String? dateStr = e['date'] as String?;
+      return dateStr != null ? DateTime.parse(dateStr) : DateTime.now();
+    }).toList();
+    return dateTimes;
   }
 
   Future<Null> addEvent(Event event) async {
@@ -640,18 +685,6 @@ class _SampleMainPageState extends State<SampleMainPage> {
     );
   }
 
-  Future<Null> updatePot(Map<String, dynamic> newFields) async {
-    // Get the new pot ID to update the Sample table
-    final int id = await getNewPotId(newFields);
-
-    // Update the sample table with the new pot
-    String query = 'UPDATE [Sample] SET [pot] = ?1 WHERE [id] = ?2;';
-
-    final db = await DBService().db;
-    await db.rawUpdate(query, [id, widget.id]);
-    setState(() {});
-  }
-
   Map<String, dynamic> potMap(SampleDetails sample) {
     return {
       'material': sample.material,
@@ -687,4 +720,28 @@ class _SampleMainPageState extends State<SampleMainPage> {
       });
     }
   }
+
+  Future<num> calculateWateringFrequency(int sampleId) async {
+    final db = await DBService().db;
+    const query = '''
+      SELECT 
+        MAX([date]) AS max_date, 
+        MIN([date]) AS min_date,
+        COUNT(*) AS count
+      FROM [Events]
+      WHERE [id] = ?1 AND [event] = "water";
+    ''';
+    final result = await db.rawQuery(query, [sampleId]);
+
+    if (result.isNotEmpty && result.first['max_date'] != null && result.first['min_date'] != null) {
+      final maxDate = DateTime.parse(result.first['max_date'] as String);
+      final minDate = DateTime.parse(result.first['min_date'] as String);
+      final count = result.first['count'] as int;
+      return maxDate.difference(minDate).inDays / count;
+    }
+
+    return 0; // Return 0 if no data or only one entry
+  }
 }
+
+

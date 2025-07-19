@@ -94,7 +94,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
           children: <Widget>[
             box5,
             Text(
-              'Le mie piante',
+              'I miei esemplari',
               textAlign: TextAlign.center,
               style: textTheme.titleLarge,
             ),
@@ -155,7 +155,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
             //SampleSummaryTable(key: sampleSummaryPageKey),
             Expanded(
               child: FutureBuilder(
-                key: UniqueKey(),
+                key: sampleSummaryPageKey,
                 future: fetchSamples(_query),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -185,16 +185,14 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
 
   Widget summaryRow(SampleListItem sample) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => SampleMainPage(id: sample.id)
           ),
         ).then((c) {
-          setState(() {
-            //sampleSummaryKey = UniqueKey();
-          });
+          setState(() {sampleSummaryPageKey = UniqueKey();});
         });
       },
       child: Row(
