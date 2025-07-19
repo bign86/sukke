@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:sukke/db.dart';
 import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/objects/plantobj.dart';
 import 'package:sukke/texteditpage.dart';
 import 'package:sukke/plantAnagraphicEditPage.dart';
@@ -35,7 +36,10 @@ class _PlantMainPageState extends State<PlantMainPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Plant #${widget.id.toString()}',),
+        title: Text(
+          'Plant #${widget.id.toString()}',
+          style: textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.remove_circle_outline),

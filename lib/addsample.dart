@@ -131,6 +131,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           items: plants,
           controller: controllers['plant'],
           singleSelect: true,
+          searchEnabled: true,
           validator: (option) {
             if (option == null || option.isEmpty) {
               return 'Select a plant';

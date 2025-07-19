@@ -155,7 +155,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
             //SampleSummaryTable(key: sampleSummaryPageKey),
             Expanded(
               child: FutureBuilder(
-                key: UniqueKey(),
+                key: sampleSummaryPageKey,
                 future: fetchSamples(_query),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -192,9 +192,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
               builder: (context) => SampleMainPage(id: sample.id)
           ),
         ).then((c) {
-          setState(() {
-            //sampleSummaryKey = UniqueKey();
-          });
+          setState(() {sampleSummaryPageKey = UniqueKey();});
         });
       },
       child: Row(

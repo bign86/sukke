@@ -34,6 +34,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
   );
   Soil? soil;
   List<DateTime>? selectedDates;
+  num? wateringFrequency;
 
   @override
   Widget build(BuildContext context) {
@@ -566,6 +567,12 @@ class _SampleMainPageState extends State<SampleMainPage> {
             style: textTheme.headlineSmall,
           ),
           box10,
+          Text(
+            'Average water frequency: ${wateringFrequency.toString()} days',
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium,
+          ),
+          box5,
           Padding(
             padding: padLR12,
             child: CleanCalendar(
@@ -600,11 +607,11 @@ class _SampleMainPageState extends State<SampleMainPage> {
 
   Future<SampleDetails> fetchData(int sampleId) async {
     selectedDates = await fetchWateringDates(sampleId);
-    print(selectedDates);
     final SampleDetails sample = await fetchSampleData(sampleId);
     if (sample.soil != null) {
       soil = await fetchSoil(sample.soil!);
     }
+    wateringFrequency = await calculateWateringFrequency(sampleId);
     return sample;
   }
 
@@ -713,4 +720,28 @@ class _SampleMainPageState extends State<SampleMainPage> {
       });
     }
   }
+
+  Future<num> calculateWateringFrequency(int sampleId) async {
+    final db = await DBService().db;
+    const query = '''
+      SELECT 
+        MAX([date]) AS max_date, 
+        MIN([date]) AS min_date,
+        COUNT(*) AS count
+      FROM [Events]
+      WHERE [id] = ?1 AND [event] = "water";
+    ''';
+    final result = await db.rawQuery(query, [sampleId]);
+
+    if (result.isNotEmpty && result.first['max_date'] != null && result.first['min_date'] != null) {
+      final maxDate = DateTime.parse(result.first['max_date'] as String);
+      final minDate = DateTime.parse(result.first['min_date'] as String);
+      final count = result.first['count'] as int;
+      return maxDate.difference(minDate).inDays / count;
+    }
+
+    return 0; // Return 0 if no data or only one entry
+  }
 }
+
+

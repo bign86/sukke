@@ -21,11 +21,14 @@ class PlantAnagraphicEditPage extends StatefulWidget {
 class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
   Map<String, dynamic> controllers = {};
   Map<String, dynamic> newFields = {};
+
+  List<DropdownItem<String>> knownCountries = [];
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    knownCountries = getKnownCountries();
     populateControllers();
   }
 
@@ -45,7 +48,33 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
-              Navigator.of(context).pop(newFields);
+              if (newFields.isNotEmpty) {
+                var validationErr = newFieldsValidate(newFields);
+                if (validationErr == null) {
+                  try {
+                    await newPlantToDB(newFields);
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  } catch (e) {
+                    var err = SnackBar(
+                      duration: const Duration(seconds: 3),
+                      backgroundColor: Colors.red[700],
+                      content: Text('Error in saving the plant: $e'),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(err);
+                    }
+                  }
+                } else {
+                  var err = SnackBar(
+                    duration: const Duration(seconds: 3),
+                    backgroundColor: Colors.red[700],
+                    content: Text(validationErr),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(err);
+                }
+              }
             },
           ),
         ],
@@ -85,6 +114,8 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
     controllers['cultivar'] = (widget.fieldsMap['cultivar'] as bool);
 
     // Multiple choice controllers
+    controllers['countries'] = MultiSelectController<String>();
+
     var controlsGR = List<bool>.filled(GrowthRate.len(), false);
     if (widget.fieldsMap.containsKey('growthRate')) {
       controlsGR[widget.fieldsMap['growthRate'].value] = true;
@@ -256,8 +287,8 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
           Expanded(
             flex: 3,
             child: MultiDropdown(
-              items: getKnownCountries(),
-              controller: MultiSelectController<String>(),
+              items: knownCountries,
+              controller: controllers['countries'],
               singleSelect: false,
               onSelectionChange: (options) {
                 newFields['countries'] = options;
@@ -503,7 +534,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
   }
 
   List<DropdownItem<String>> getKnownCountries() {
-    List<DropdownItem<String>> knownCountries = <DropdownItem<String>>[
+     List<DropdownItem<String>> knownCountries = <DropdownItem<String>>[
       DropdownItem<String>(label: 'Argentina', value: 'Argentina', selected: false),
       DropdownItem<String>(label: 'Bolivia', value: 'Bolivia', selected: false),
       DropdownItem<String>(label: 'Brazil', value: 'Brazil', selected: false),
@@ -532,7 +563,24 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
         }
       }
     }
-
     return knownCountries;
+  }
+
+  static String? newFieldsValidate(Map<String, dynamic> newFields) {
+    // Check for family
+    if (!newFields.containsKey('family') || newFields['family'].isEmpty) {
+      return "Il campo family è vuoto!";
+    }
+    // Check for genus
+    if (!newFields.containsKey('genus') || newFields['genus'].isEmpty) {
+      return "Il campo genus è vuoto!";
+    }
+    // Check for species
+    if (!newFields.containsKey('species') || newFields['species'].isEmpty) {
+      return "Il campo species è vuoto!";
+    }
+
+    // In the end return True
+    return null;
   }
 }

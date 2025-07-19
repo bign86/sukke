@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:sukke/db.dart';
@@ -43,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
       child: ListView(
         padding: padAll8,
         children: [
-          box30,
+          box10,
           Center(
             child: TextButton.icon(
               onPressed: () async {
@@ -62,8 +63,18 @@ class _SettingsPageState extends State<SettingsPage> {
           Center(
             child: TextButton.icon(
               onPressed: () async {
+                await backupDatabaseToDownloads(context);
+              },
+              icon: const Icon(Icons.download),
+              label: const Text('Backup the Database in Downloads',),
+            ),
+          ),
+          box5,
+          Center(
+            child: TextButton.icon(
+              onPressed: () async {
                 final err = await substituteDB();
-                if (err != null && mounted) {
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(err);
                 }
               },
@@ -90,7 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-Future<SnackBar?> substituteDB() async {
+Future<SnackBar> substituteDB() async {
   // Pick the file
   FilePickerResult? result = await FilePicker.platform.pickFiles();
 
@@ -116,7 +127,11 @@ Future<SnackBar?> substituteDB() async {
       }
 
       // If everything is well just return
-      return null;
+      return SnackBar(
+        duration: const Duration(seconds: 3),
+        backgroundColor: Colors.green[700],
+        content: const Text('Database recovered up successfully'),
+      );
 
     // In case of error print out an error
     } catch (err) {
@@ -129,7 +144,44 @@ Future<SnackBar?> substituteDB() async {
 
   } else {
     // User canceled the picker
-    return null;
+    return SnackBar(
+      duration: const Duration(seconds: 3),
+      backgroundColor: Colors.amber[700],
+      content: const Text('Nothing has been picked'),
+    );
+  }
+}
+
+Future<void> backupDatabaseToDownloads(BuildContext context) async {
+  try {
+    final db = await DBService().db;
+    final Directory? downloadsDir = await getDownloadsDirectory();
+
+    if (downloadsDir != null) {
+      final String newPath = '${downloadsDir.path}/plants.db';
+      await File(db.path).copy(newPath);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.green[700],
+            content: Text('Database backed up successfully at $newPath'),
+          ),
+        );
+      }
+    } else {
+      throw Exception('Could not get downloads directory');
+    }
+  } catch (err) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.red[700],
+          content: Text('Error backing up database: $err'),
+        ),
+      );
+    }
   }
 }
 
