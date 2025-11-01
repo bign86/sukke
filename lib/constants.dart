@@ -1,5 +1,5 @@
 // General app constants
-const String appVersion = '0.1.6';
+const String appVersion = '0.1.7';
 const String appAuthor = 'Nero';
 const String appTitle = 'Sukke';
 

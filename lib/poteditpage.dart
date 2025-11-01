@@ -7,7 +7,7 @@ import 'package:sukke/theme/elements.dart';
 
 class PotEditPage extends StatefulWidget {
   const PotEditPage({
-    super.key, required this.fieldsMap   // fields
+    super.key, required this.fieldsMap
   });
 
   final Map<String, dynamic> fieldsMap;
@@ -76,9 +76,9 @@ class _PotEditPageState extends State<PotEditPage> {
 
   List<Widget> formsList() {
     return <Widget>[
-      box10,
+      vBox10,
       Center(child: Text('Materiale',),),
-      box5,
+      vBox5,
       Center(
         child: SegmentedButton<PotMaterial>(
           segments: PotMaterial.values.map(
@@ -96,9 +96,9 @@ class _PotEditPageState extends State<PotEditPage> {
           },
         ),
       ),
-      box10,
+      vBox10,
       Center(child: Text('Forma',),),
-      box5,
+      vBox5,
       Center(
         child: SegmentedButton<PotShape>(
           segments: PotShape.values.map(
@@ -116,7 +116,7 @@ class _PotEditPageState extends State<PotEditPage> {
           },
         ),
       ),
-      box10,
+      vBox10,
       Row(
         children: [
           const Expanded(
@@ -147,7 +147,7 @@ class _PotEditPageState extends State<PotEditPage> {
           ),
         ],
       ),
-      box10,
+      vBox10,
       Row(
         children: [
           const Expanded(

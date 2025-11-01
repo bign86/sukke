@@ -32,7 +32,7 @@ class _TextEditPageState extends State<TextEditPage> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
-              String? text = controller.text;
+              String? text = controller.text.trim();
               if (text == '') {
                 text = null;
               }

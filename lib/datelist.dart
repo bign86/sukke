@@ -25,7 +25,7 @@ class DateSummaryPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            box10,
+            vBox10,
             Padding(
               padding: padLR16,
               child: Row(

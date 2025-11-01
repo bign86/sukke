@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:multi_dropdown/multi_dropdown.dart';
 import 'package:sukke/db.dart';
 
 
@@ -134,7 +135,6 @@ class Plant {
     } else {
       return null;
     }
-    //throw ArgumentError('Property $propertyName not found');
   }
 
   /// The toString method is implemented to display the Plant object in
@@ -193,23 +193,76 @@ Future<Null> newPlantToDB(Map<String, dynamic> newFields) async {
   await db.rawUpdate(maxIdQuery, [id]);
 }
 
+Future<Null> updatePlantInformation(Map<String, dynamic> newFields, int id) async {
+  String query = 'UPDATE [Plant] SET ';
+  List<String> setField = <String>[];
+  List arguments = [];
+
+  if (newFields.containsKey('family')) {
+    setField.add('[family] = "${newFields['family']}"');
+  }
+  if (newFields.containsKey('genus')) {
+    setField.add('[genus] = "${newFields['genus']}"');
+  }
+  if (newFields.containsKey('species')) {
+    setField.add('[species] = "${newFields['species']}"');
+  }
+  if (newFields.containsKey('variant')) {
+    setField.add('[variant] = "${newFields['variant']}"');
+  }
+  if (newFields.containsKey('synonyms')) {
+    arguments.add(jsonEncode(newFields['synonyms']));
+    final int pos = arguments.length;
+    setField.add('[synonyms] = ?$pos');
+  }
+  if (newFields.containsKey('countries')) {
+    List<String> countries = newFields['countries']
+        .map<String>((DropdownItem c) => c.label.toString())
+        .toList();
+    arguments.add(jsonEncode(countries));
+    final int pos = arguments.length;
+    setField.add('[countries] = ?$pos');
+  }
+  if (newFields.containsKey('cultivar')) {
+    setField.add('[cultivar] = ${newFields['cultivar'] ? 1 : 0}');
+  }
+  if (newFields.containsKey('commonName')) {
+    setField.add('[commonName] = "${newFields['commonName']}"');
+  }
+  if (newFields.containsKey('growthRate')) {
+    setField.add('[growthRate] = ${newFields['growthRate'].value}');
+  }
+  if (newFields.containsKey('dormantSeason')) {
+    setField.add('[dormantSeason] = ${newFields['dormantSeason'].value}');
+  }
+  if (newFields.containsKey('TMin')) {
+    setField.add('[TMin] = ${newFields['TMin']}');
+  }
+  if (newFields.containsKey('wateringNeeds')) {
+    setField.add('[wateringNeeds] = ${newFields['wateringNeeds'].value}');
+  }
+  if (newFields.containsKey('lightNeeds')) {
+    setField.add('[lightNeeds] = ${newFields['lightNeeds'].value}');
+  }
+
+  query += setField.join(', ');
+
+  arguments.add(id);
+  final int pos = arguments.length;
+  query += ' WHERE [id] = ?$pos;';
+
+  final db = await DBService().db;
+  await db.rawUpdate(query, arguments);
+}
+
 Map<String, dynamic> newAnagraphicalMap = {
   'family': '', 'genus': '', 'species': '', 'variant': null,
-  'synonyms': [], 'countries': [], 'cultivar': false,
+  'synonyms': <String>[], 'countries': <String>[], 'cultivar': false,
   'commonName': '', 'growthRate': GrowthRate.na,
   'dormantSeason': DormantSeason.na, 'TMin': 0,
   'wateringNeeds': Needs.medium, 'lightNeeds': Needs.medium,
 };
 
-
-/*enum YesNo {
-  yes('Yes', true),
-  no('No', false);
-
-  const YesNo(this.label, this.value);
-  final String label;
-  final bool value;
-}*/
 
 enum DormantSeason {
   na('N/A', 0),

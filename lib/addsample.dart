@@ -119,13 +119,13 @@ class _SampleAddPage extends State<SampleAddPage> {
 
   ListView formsList(List<DropdownItem<String>> plants) {
     List<Widget> l = <Widget>[
-      box10,
+      vBox10,
       Text(
         'Pianta',
         textAlign: TextAlign.center,
         style: textTheme.titleSmall,
       ),
-      box10,
+      vBox10,
       Center(
         child: MultiDropdown(
           items: plants,
@@ -162,15 +162,15 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ),
       ),
-      box5,
+      vBox5,
       dividerGray20,
-      box5,
+      vBox5,
       Text(
         'Campione',
         textAlign: TextAlign.center,
         style: textTheme.titleSmall,
       ),
-      box10,
+      vBox10,
       Row(
         children: [
           Expanded(
@@ -204,7 +204,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -229,7 +229,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -254,7 +254,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -279,7 +279,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -304,7 +304,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -329,7 +329,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -354,7 +354,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -379,21 +379,21 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       dividerGray20,
-      box5,
+      vBox5,
       Text(
         'Vaso',
         textAlign: TextAlign.center,
         style: textTheme.titleSmall,
       ),
-      box10,
+      vBox10,
       Text(
         'Materiale',
         textAlign: TextAlign.center,
         style: textTheme.bodyLarge,
       ),
-      box5,
+      vBox5,
       Center(
         child: SegmentedButton<PotMaterial>(
           segments: PotMaterial.values.map(
@@ -411,13 +411,13 @@ class _SampleAddPage extends State<SampleAddPage> {
           },
         ),
       ),
-      box5,
+      vBox5,
       Text(
         'Forma',
         textAlign: TextAlign.center,
         style: textTheme.bodyLarge,
       ),
-      box5,
+      vBox5,
       Center(
         child: SegmentedButton<PotShape>(
           segments: PotShape.values.map(
@@ -435,7 +435,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           },
         ),
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -470,7 +470,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box5,
+      vBox5,
       Row(
         children: [
           Expanded(
@@ -496,7 +496,7 @@ class _SampleAddPage extends State<SampleAddPage> {
           ),
         ],
       ),
-      box10,
+      vBox10,
     ];
 
     return ListView(

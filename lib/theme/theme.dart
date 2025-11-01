@@ -67,8 +67,6 @@ const textTheme = TextTheme(
     fontSize: 9,
     color: Colors.black87,
   ),
-
-  // Table elements
 );
 
 var mainTheme = ThemeData(

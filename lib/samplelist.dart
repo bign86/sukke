@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:sukke/db.dart';
-import 'package:sukke/theme/theme.dart';
 import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/functions.dart';
+import 'package:sukke/theme/theme.dart';
 import 'package:sukke/samplepage.dart';
 import 'package:sukke/plantlist.dart';
 import 'package:sukke/soillist.dart';
@@ -22,8 +24,28 @@ class SampleSummaryPage extends StatefulWidget {
 }
 
 class _SampleSummaryPage extends State<SampleSummaryPage> {
-  Key sampleSummaryPageKey = UniqueKey();
-  String _query = '';
+  late Future<List<SampleListItem>> _futureSampleList;
+  late TextEditingController searchController;
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    searchController = TextEditingController(text: '');
+    _futureSampleList = _fetchSamples(searchController.text);
+  }
+
+  void _refreshData() {
+    setState(() {
+      _futureSampleList = _fetchSamples(searchController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,14 +85,16 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
           ),
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => const SampleAddPage()
                 ),
-              ).then( (n) async {
-                setState(() {sampleSummaryPageKey = UniqueKey();});
+              );
+              searchController.text = '';
+              Timer(const Duration(milliseconds: 200), () {
+                _refreshData();
               });
             },
           ),
@@ -89,19 +113,19 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
       ),
       body: Center(
         child: Column(
-          key: sampleSummaryPageKey,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            box5,
+            vBox5,
             Text(
               'I miei esemplari',
               textAlign: TextAlign.center,
               style: textTheme.titleLarge,
             ),
-            box5,
+            vBox5,
             Padding(
               padding: padLR8,
               child: TextField(
+                controller: searchController,
                 style: textTheme.labelLarge,
                 autofocus: false,
                 showCursor: true,
@@ -109,8 +133,9 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
                 selectionHeightStyle: BoxHeightStyle.tight,
                 cursorHeight: textTheme.labelLarge?.fontSize,
                 onChanged: (value) {
-                  setState(() {
-                    _query = value;
+                  if (_debounce?.isActive ?? false) _debounce!.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 500), () {
+                    _refreshData();
                   });
                 },
                 decoration: InputDecoration(
@@ -126,7 +151,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
                 ),
               ),
             ),
-            box10,
+            vBox10,
             const Padding(
               padding: padLR8,
               child: Row(
@@ -152,11 +177,9 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
               ),
             ),
             dividerGray10,
-            //SampleSummaryTable(key: sampleSummaryPageKey),
             Expanded(
               child: FutureBuilder(
-                key: sampleSummaryPageKey,
-                future: fetchSamples(_query),
+                future: _futureSampleList,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
@@ -186,17 +209,18 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
   Widget summaryRow(SampleListItem sample) {
     return GestureDetector(
       onTap: () async {
-        Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => SampleMainPage(id: sample.id)
+            builder: (context) => SampleMainPage(id: sample.id)
           ),
-        ).then((c) {
-          setState(() {sampleSummaryPageKey = UniqueKey();});
+        );
+        searchController.text = '';
+        Timer(const Duration(milliseconds: 200), () {
+          _refreshData();
         });
       },
       child: Row(
-        key: ValueKey(sample.id),
         children: <Widget>[
           Expanded(
             flex: 1,
@@ -208,20 +232,20 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
           ),
           Expanded(
             flex: 5,
-            child: Text(
-              sample.name,
-              style: textTheme.bodyMedium,
-            ),
+            child: createSimpleBodyText(sample.name, false),
           ),
         ],
       ),
     );
   }
 
-  static Future<List<SampleListItem>> fetchSamples(String partialSearch) async {
+  Future<List<SampleListItem>> _fetchSamples(String partialSearch) async {
     var query = 'SELECT [id], [name] FROM [Summary]';
     if (partialSearch.isNotEmpty) {
-      query += ' WHERE [name] LIKE "%$partialSearch%" OR [id] LIKE "%$partialSearch%";';
+      query += '''
+        WHERE [name] LIKE '%$partialSearch%'
+        OR [id] LIKE '%$partialSearch%'
+      ''';
     }
     query += ' ORDER BY [name];';
 

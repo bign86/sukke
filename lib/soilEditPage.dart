@@ -43,7 +43,7 @@ class _SampleSoilEditPage extends State<SampleSoilEditPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            box10,
+            vBox10,
             Padding(
               padding: padLR16,
               child: Row(
@@ -79,7 +79,7 @@ class _SampleSoilEditPage extends State<SampleSoilEditPage> {
   }
 
   List<Widget> soilLabelsList() {
-    List<Widget> l = [box5];
+    List<Widget> l = [vBox5];
     for (MapEntry e in Soil.componentsNames.entries) {
       l.add(
         Expanded(

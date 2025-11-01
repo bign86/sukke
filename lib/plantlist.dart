@@ -4,11 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:sukke/db.dart';
+import 'package:sukke/theme/functions.dart';
 import 'package:sukke/theme/theme.dart';
 import 'package:sukke/theme/elements.dart';
 import 'package:sukke/plantpage.dart';
 import 'package:sukke/objects/plantobj.dart';
-import 'package:sukke/plantAnagraphicEditPage.dart';
+import 'package:sukke/plantEditPage.dart';
 
 
 class PlantSummaryPage extends StatefulWidget {
@@ -19,13 +20,27 @@ class PlantSummaryPage extends StatefulWidget {
 }
 
 class _PlantSummaryPageState extends State<PlantSummaryPage> {
-  String _query = '';
-  UniqueKey futureKey = UniqueKey();
+  late Future<List<PlantListItem>> _futurePlantList;
+  late TextEditingController searchController;
+  Timer? _debounce;
 
-  Null reset() {
+  @override
+  void initState() {
+    super.initState();
+    searchController = TextEditingController(text: '');
+    _futurePlantList = _fetchPlants(searchController.text);
+  }
+
+  void _refreshData() {
     setState(() {
-      _query = '';
+      _futurePlantList = _fetchPlants(searchController.text);
     });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -44,19 +59,14 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PlantAnagraphicEditPage(fieldsMap: newAnagraphicalMap)
+                  builder: (context) => PlantAnagraphicEditPage(
+                    fieldsMap: newAnagraphicalMap, plantId: null
+                  )
                 ),
-              ).then( <Map>(newFields) async {
-                if (newFields != null) {
-                  if (newFields.isNotEmpty) {
-                    newPlantToDB(newFields);
-                    setState(() {
-                      _query = '';
-                      futureKey = UniqueKey();
-                    });
-                    //reset();
-                  }
-                }
+              );
+              searchController.text = '';
+              Timer(const Duration(milliseconds: 200), () {
+                _refreshData();
               });
             },
           ),
@@ -66,10 +76,11 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            box5,
+            vBox5,
             Padding(
               padding: padLR8,
               child: TextField(
+                controller: searchController,
                 style: textTheme.labelLarge,
                 autofocus: false,
                 showCursor: true,
@@ -77,8 +88,9 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
                 selectionHeightStyle: BoxHeightStyle.tight,
                 cursorHeight: textTheme.labelLarge?.fontSize,
                 onChanged: (value) {
-                  setState(() {
-                    _query = value;
+                  if (_debounce?.isActive ?? false) _debounce!.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 500), () {
+                    _refreshData();
                   });
                 },
                 decoration: InputDecoration(
@@ -94,7 +106,7 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
                 ),
               ),
             ),
-            box10,
+            vBox10,
             const Padding(
               padding: padLR8,
               child: Row(
@@ -122,8 +134,7 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
             dividerGray10,
             Expanded(
               child: FutureBuilder(
-                key: futureKey,
-                future: fetchPlants(_query),
+                future: _futurePlantList,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
@@ -156,12 +167,13 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
         await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => PlantMainPage(id: plant.id)),
-          ).then( (value) async => setState(() {
-            _query = '';
-            futureKey = UniqueKey();
-          })
+            builder: (context) => PlantMainPage(id: plant.id)
+          ),
         );
+        searchController.text = '';
+        Timer(const Duration(milliseconds: 200), () {
+          _refreshData();
+        });
       },
       child: Row(
         key: ValueKey(plant.id),
@@ -176,22 +188,22 @@ class _PlantSummaryPageState extends State<PlantSummaryPage> {
           ),
           Expanded(
             flex: 5,
-            child: Text(
-              plant.name,
-              style: textTheme.bodyMedium,
-            ),
+            child: createSimpleBodyText(plant.name, false),
           ),
         ],
       ),
     );
   }
 
-  static Future<List<PlantListItem>> fetchPlants(String partialSearch) async {
-    var query = 'SELECT [id], COALESCE([species], [commonName])||" "||COALESCE([variant], "") AS [name] FROM [Plant]';
+  Future<List<PlantListItem>> _fetchPlants(String partialSearch) async {
+    var query = '''
+      SELECT [id], COALESCE([species], [commonName])||' '||COALESCE([variant], '') AS [name]
+      FROM [Plant]
+    ''';
     if (partialSearch.isNotEmpty) {
       query += '''
-       WHERE [name] LIKE "%$partialSearch%"
-       OR [id] LIKE "%$partialSearch%";
+       WHERE [name] LIKE '%$partialSearch%'
+       OR [id] LIKE '%$partialSearch%'
       ''';
     }
     query += ' ORDER BY [name];';

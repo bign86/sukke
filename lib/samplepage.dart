@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:sukke/db.dart';
 import 'package:sukke/theme/elements.dart';
+import 'package:sukke/theme/functions.dart';
 import 'package:sukke/theme/theme.dart';
 import 'package:sukke/objects/sampleobj.dart';
 import 'package:sukke/objects/potobj.dart';
@@ -13,9 +14,23 @@ import 'package:sukke/poteditpage.dart';
 import 'package:sukke/objects/events.dart';
 import 'package:sukke/sampleeditpage.dart';
 import 'package:sukke/objects/soilobj.dart';
-import 'package:sukke/sampleSoilEditPage.dart';
+import 'package:sukke/soilEditPage.dart';
 import 'package:sukke/texteditpage.dart';
 
+
+class SamplePageData {
+  final SampleDetails sampleDetails;
+  final Soil? soil;
+  final List<DateTime> wateringDates;
+  final double wateringFrequency;
+
+  SamplePageData({
+    required this.sampleDetails,
+    this.soil,
+    required this.wateringDates,
+    required this.wateringFrequency,
+  });
+}
 
 class SampleMainPage extends StatefulWidget {
   const SampleMainPage({super.key, required this.id});
@@ -28,27 +43,33 @@ class SampleMainPage extends StatefulWidget {
 
 class _SampleMainPageState extends State<SampleMainPage> {
   TextEditingController eventDate = TextEditingController();
-  TextStyle keywordStyle = TextStyle(
-    fontSize: textTheme.bodyMedium?.fontSize,
-    fontStyle: FontStyle.italic,
-  );
-  Soil? soil;
   List<DateTime>? selectedDates;
-  num? wateringFrequency;
+  late Future<SamplePageData> _futureSamplePageData;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureSamplePageData = _fetchPageData(widget.id);
+  }
+
+  void _refreshData() {
+    setState(() {
+      _futureSamplePageData = _fetchPageData(widget.id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // title: Text('Sample #${widget.id.toString()}',),
         actions: [
           IconButton(
             icon: const Icon(Icons.remove_circle_outline),
             onPressed: () {
               showDialog<bool>(
-                // Store a local reference to the context
-                // as the async operation might occur after the widget is disposed
+                // Store a local reference to the context as the async
+                // operation might occur after the widget is disposed
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('Attenzione!'),
@@ -70,7 +91,6 @@ class _SampleMainPageState extends State<SampleMainPage> {
                   ],
                 ),
               ).then((deleted) {
-                // Check if the widget is still mounted before calling setState or Navigator.pop
                 if (!context.mounted) return;
                 if (deleted == true) {
                   if (Navigator.canPop(context)) {
@@ -83,8 +103,8 @@ class _SampleMainPageState extends State<SampleMainPage> {
         ],
       ),
       body: Center(
-        child: FutureBuilder<SampleDetails>(
-          future: fetchData(widget.id),
+        child: FutureBuilder<SamplePageData>(
+          future: _futureSamplePageData,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
@@ -92,7 +112,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
               if (snapshot.hasError) {
                 return const Text('Future creation error'); // error
               } else if (snapshot.hasData) {
-                return sampleDetailsPage(snapshot.data, widget.id);
+                return sampleDetailsPage(snapshot.data!, widget.id);
               } else {
                 return const Text("No data available");
               }
@@ -105,60 +125,50 @@ class _SampleMainPageState extends State<SampleMainPage> {
     );
   }
 
-  Widget sampleDetailsPage(SampleDetails? data, int id) {
+  Widget sampleDetailsPage(SamplePageData pageData, int id) {
+    final data = pageData.sampleDetails;
+    final soil = pageData.soil;
+    final selectedDates = pageData.wateringDates;
+    final wateringFrequency = pageData.wateringFrequency;
+
     return CupertinoScrollbar(
       child: ListView(
         padding: padAll10,
         children: [
-          box5,
+          vBox5,
           GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => PlantMainPage(id: data!.plant)),
+                  builder: (context) => PlantMainPage(id: data.plant)
+                ),
               );
-              setState(() {});
             },
             child: Text(
-              '#$id - ${data?.species ?? data?.commonName} ${data?.variant}',
+              '#$id - ${data.species ?? data.commonName} ${data.variant}',
               textAlign: TextAlign.center,
               softWrap: true,
               style: textTheme.titleMedium,
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Informazioni',
-                textAlign: TextAlign.center,
-                style: textTheme.headlineMedium,
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.edit,
-                  color: COLOR_PRIMARY,
-                  size: 15,
-                ),
-                onPressed: () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => SampleEditPage(data: data!)
-                    ),
-                  ).then(<Map>(newFields) async {
-                    if (newFields != null) {
-                      setState(() {
-                        updateSample(widget.id, newFields);
-                      });
-                    }
-                  });
-                },
-              ),
-            ],
+          Center(
+            child: TextButton.icon(
+              icon: editIcon,
+              label: createSectionHeaderText('Informazioni'),
+              iconAlignment: IconAlignment.end,
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SampleEditPage(data: data)
+                  ),
+                );
+                _refreshData();
+              },
+            ),
           ),
-          box5,
+          vBox5,
           Container(
             padding: padLR12,
             child: Table(
@@ -173,75 +183,33 @@ class _SampleMainPageState extends State<SampleMainPage> {
                 TableRow(
                   children: <TableCell>[
                     TableCell(child: Text('Born', style: keywordStyle,)),
-                    TableCell(child: Text(data!.born.toString(), style: textTheme.bodyMedium,)),
+                    TableCell(child: Text(data.born.toString(), style: textTheme.bodyMedium,)),
                     TableCell(child: Text('Crested', style: keywordStyle,)),
-                    TableCell(child: data.crested ? Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),),
+                    TableCell(child: createCheckIcon(data.crested),),
                   ],
                 ),
                 TableRow(
                   children: <TableCell>[
                     TableCell(child: Text('Bought', style: keywordStyle,)),
-                    TableCell(child: data.bought ? Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),),
+                    TableCell(child: createCheckIcon(data.bought),),
                     TableCell(child: Text('Variegated', style: keywordStyle,)),
-                    TableCell(child: data.variegated ? Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),),
+                    TableCell(child: createCheckIcon(data.variegated),),
                   ],
                 ),
                 TableRow(
                   children: <TableCell>[
                     TableCell(child: Text('From seed', style: keywordStyle,)),
-                    TableCell(child: data.fromSeed ? Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),),
+                    TableCell(child: createCheckIcon(data.fromSeed),),
                     TableCell(child: Text('Grafted', style: keywordStyle,)),
-                    TableCell(child: data.grafted ? Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),),
+                    TableCell(child: createCheckIcon(data.grafted),),
                   ],
                 ),
                 TableRow(
                   children: <TableCell>[
                     TableCell(child: Text('From cutting', style: keywordStyle,)),
-                    TableCell(child: data.fromCutting ? Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),),
+                    TableCell(child: createCheckIcon(data.fromCutting),),
                     TableCell(child: Text('Monstrous', style: keywordStyle,)),
-                    TableCell(child: data.monstrous ? Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),),
+                    TableCell(child: createCheckIcon(data.monstrous),),
                   ],
                 ),
               ],
@@ -249,14 +217,15 @@ class _SampleMainPageState extends State<SampleMainPage> {
           ),
           Container(
             padding: padLR12,
-            child: Row(
-              children: <Text>[
-                Text('Location: ', style: keywordStyle,),
-                Text(data.location.toString(), style: textTheme.bodyMedium,),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                createKeyValueItem('Field Number: ', (data.fieldNumber ?? "-").toString(), textAlign: TextAlign.left),
+                createKeyValueItem('Sample location: ', (data.location ?? "-").toString(), textAlign: TextAlign.left),
               ],
             ),
           ),
-          box10,
+          vBox10,
           Container(
             padding: padAll12,
             alignment: Alignment.center,
@@ -312,77 +281,51 @@ class _SampleMainPageState extends State<SampleMainPage> {
               ],
             ),
           ),
-          box10,
-          Padding(
-            padding: padLR12,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Note',
-                  textAlign: TextAlign.center,
-                  style: textTheme.headlineMedium,
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.edit,
-                    color: COLOR_PRIMARY,
-                    size: 15,
-                  ),
-                  onPressed: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TextEditPage(title: 'Note', text: data.notes ?? "-")),
-                    ).then( (newText) async {
-                      updateSampleNotes(widget.id, newText);
-                      setState(() {});
-                    });
-                  },
-                ),
-              ],
+          vBox10,
+          Center(
+            child: TextButton.icon(
+              icon: editIcon,
+              label: createSectionHeaderText('Note'),
+              iconAlignment: IconAlignment.end,
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TextEditPage(title: 'Note', text: data.notes ?? "-")),
+                ).then( (newText) async {
+                  await updateSampleNotes(widget.id, newText);
+                  if (!mounted) return;
+                  _refreshData();
+                });
+              },
             ),
           ),
           Padding(
             padding: padLR12,
             child: Text(data.notes ?? "-",),
           ),
-          box10,
-          Padding(
-            padding: padLR12,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Vaso',
-                  textAlign: TextAlign.center,
-                  style: textTheme.headlineMedium,
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.edit,
-                    color: COLOR_PRIMARY,
-                    size: 15,
+          vBox10,
+          Center(
+            child: TextButton.icon(
+              icon: editIcon,
+              label: createSectionHeaderText('Vaso'),
+              iconAlignment: IconAlignment.end,
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PotEditPage(fieldsMap: _potMap(data)),
                   ),
-                  onPressed: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PotEditPage(fieldsMap: potMap(data)),
-                      ),
-                    ).then( (newPot) async {
-                      if (newPot != null) {
-                        setState(() {
-                          updatePot(newPot, widget.id);
-                        });
-                      }
-                    });
-                  },
-                ),
-              ],
+                ).then( (newPot) async {
+                  if (newPot != null) {
+                    await updatePot(newPot, widget.id);
+                    if (!mounted) return;
+                    _refreshData();
+                  }
+                });
+              },
             ),
           ),
-          //box5,
           Container(
             padding: padLR12,
             child: Table(
@@ -407,55 +350,36 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     TableCell(child: Text('Forma', style: keywordStyle, textAlign: TextAlign.center,)),
                     TableCell(child: Text(data.shape.label, textAlign: TextAlign.left,),),
                     TableCell(child: Text('Deep', style: keywordStyle, textAlign: TextAlign.center,)),
-                    TableCell(child: data.deep ? Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      ) : Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
-                    ),
+                    TableCell(child: createCheckIcon(data.deep),),
                   ],
                 ),
               ],
             ),
           ),
-          box10,
-          Padding(
-            padding: padLR12,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Terreno',
-                  textAlign: TextAlign.center,
-                  style: textTheme.headlineMedium,
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.edit,
-                    color: COLOR_PRIMARY,
-                    size: 15,
+          vBox10,
+          Center(
+            child: TextButton.icon(
+              icon: editIcon,
+              label: createSectionHeaderText('Terreno'),
+              iconAlignment: IconAlignment.end,
+              onPressed: () async {
+                int? soilId;
+                if (soil != null) {
+                  soilId = soil.id;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SampleSoilEditPage(id: soilId),
                   ),
-                  onPressed: () async {
-                    int? soilId;
-                    if (soil != null) {
-                      soilId = soil!.id;
-                    }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SampleSoilEditPage(id: soilId),
-                      ),
-                    ).then( (newSoil) async {
-                      if (newSoil != null) {
-                        updateSampleSoil(widget.id, newSoil);
-                        setState(() {});
-                      }
-                    });
-                  },
-                ),
-              ],
+                ).then( (newSoil) async {
+                  if (newSoil != null) {
+                    await updateSampleSoil(widget.id, newSoil);
+                    if (!mounted) return;
+                    _refreshData();
+                  }
+                });
+              },
             ),
           ),
           GridView.count(
@@ -465,15 +389,11 @@ class _SampleMainPageState extends State<SampleMainPage> {
             shrinkWrap: true,
             childAspectRatio: 5,
             // This creates two columns with two items in each column
-            children: createSoilGrid(),
+            children: _createSoilGrid(soil),
           ),
-          box5,
-          Text(
-            'Eventi',
-            textAlign: TextAlign.center,
-            style: textTheme.headlineMedium,
-          ),
-          box5,
+          vBox5,
+          createSectionHeaderText('Eventi'),
+          vBox5,
           Row(
             children: [
               Expanded(
@@ -486,13 +406,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     ),
                     Text(' ${data.water ?? "-"}'),
                     Text('${data.waterDelta ?? "-"} gg'),
-                    IconButton(
-                      onPressed: () async { addEvent(Event.water); },
-                      icon: Icon(
-                        Icons.add_circle_outline,
-                        color: Colors.grey[600],
-                      ),
-                    )
+                    _buildEventIconButton(Event.water),
                   ],
                 ),
               ),
@@ -506,13 +420,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     ),
                     Text(' ${data.fertilize ?? "-"}'),
                     Text('${data.fertilizeDelta ?? "-"} gg'),
-                    IconButton(
-                      onPressed: () async {addEvent(Event.fertilize);},
-                      icon: Icon(
-                        Icons.add_circle_outline,
-                        color: Colors.grey[600],
-                      ),
-                    )
+                    _buildEventIconButton(Event.fertilize),
                   ],
                 ),
               ),
@@ -526,13 +434,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     ),
                     Text(' ${data.pests ?? "-"}'),
                     Text('${data.pestsDelta ?? "-"} gg'),
-                    IconButton(
-                      onPressed: () async { addEvent(Event.pests); },
-                      icon: Icon(
-                        Icons.add_circle_outline,
-                        color: Colors.grey[600],
-                      ),
-                    )
+                    _buildEventIconButton(Event.pests),
                   ],
                 ),
               ),
@@ -546,33 +448,21 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     ),
                     Text(' ${data.repot ?? "-"}'),
                     Text('${data.repotDelta ?? "-"} gg'),
-                    IconButton(
-                      onPressed: () async {
-                        addEvent(Event.repot);
-                        },
-                      icon: Icon(
-                        Icons.add_circle_outline,
-                        color: Colors.grey[600],
-                      ),
-                    )
+                    _buildEventIconButton(Event.repot),
                   ],
                 ),
               ),
             ],
           ),
-          box10,
+          vBox10,
           Text(
             'Calendario delle innaffiature',
             textAlign: TextAlign.center,
             style: textTheme.headlineSmall,
           ),
-          box10,
-          Text(
-            'Average water frequency: ${wateringFrequency.toString()} days',
-            textAlign: TextAlign.center,
-            style: textTheme.bodyMedium,
-          ),
-          box5,
+          vBox10,
+          createSimpleBodyText('Average water frequency: ${wateringFrequency.toStringAsFixed(1)} days', true),
+          vBox5,
           Padding(
             padding: padLR12,
             child: CleanCalendar(
@@ -590,34 +480,39 @@ class _SampleMainPageState extends State<SampleMainPage> {
               selectedDates: selectedDates,
               onSelectedDates: (List<DateTime> value) {
                 setState(() {
-                  if (selectedDates!.contains(value.first)) {
-                    selectedDates!.remove(value.first);
+                  if (selectedDates.contains(value.first)) {
+                    selectedDates.remove(value.first);
                   } else {
-                    selectedDates!.add(value.first);
+                    selectedDates.add(value.first);
                   }
                 });
               },
             ),
           ),
-          box10,
+          vBox10,
         ],
       ),
     );
   }
 
-  Future<SampleDetails> fetchData(int sampleId) async {
-    selectedDates = await fetchWateringDates(sampleId);
-    final SampleDetails sample = await fetchSampleData(sampleId);
-    if (sample.soil != null) {
-      soil = await fetchSoil(sample.soil!);
-    }
-    wateringFrequency = await calculateWateringFrequency(sampleId);
-    return sample;
+  Widget _buildEventIconButton(Event event) {
+    return IconButton(
+      onPressed: () async {
+        final bool? eventWasAdded = await _addEvent(event);
+        if (eventWasAdded == true) {
+          _refreshData();
+        }
+      },
+      icon: Icon(
+        Icons.add_circle_outline,
+        color: Colors.grey[600],
+      ),
+    );
   }
 
-  Future<List<DateTime>> fetchWateringDates(int sampleId) async {
+  Future<List<DateTime>> _fetchWateringDates(int sampleId) async {
     final db = await DBService().db;
-    final q = '''SELECT date FROM [Events] WHERE [event] = "water" AND [id] = ?1;''';
+    final q = '''SELECT date FROM [Events] WHERE [event] = 'water' AND [id] = ?1;''';
     final List<Map<String, dynamic>> map = await db.rawQuery(q, [sampleId]);
     List<DateTime> dateTimes = map.map((e) {
       String? dateStr = e['date'] as String?;
@@ -626,10 +521,10 @@ class _SampleMainPageState extends State<SampleMainPage> {
     return dateTimes;
   }
 
-  Future<Null> addEvent(Event event) async {
+  Future<bool?> _addEvent(Event event) async {
     eventDate.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    await showDialog<void>(
+    return await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(event.title),
@@ -646,24 +541,23 @@ class _SampleMainPageState extends State<SampleMainPage> {
                 padding: padAll8,
                 child: TextField(
                   controller: eventDate,
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.calendar_today),
-                  ),
+                  decoration: const InputDecoration(icon: Icon(Icons.calendar_today),),
                   readOnly: true,
                   onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
+                    // This prevents the main page from rebuilding when just the date in the dialog changes.
+                    showDatePicker(
                       context: context,
-                      initialDate: DateTime.now(),
+                      initialDate: DateTime.tryParse(eventDate.text) ?? DateTime.now(),
                       firstDate: DateTime(2020),
-                      lastDate: DateTime(2050),
-                    );
-                    if (pickedDate != null ) {
-                      setState(() {
+                      lastDate: DateTime(2050))
+                    .then((pickedDate) {
+                      if (pickedDate != null) {
+                        (context as Element).markNeedsBuild();
                         eventDate.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-                      });
-                    }
+                      }
+                    });
                   },
-                ),
+                )
               ),
               Padding(
                 padding: padAll8,
@@ -672,9 +566,8 @@ class _SampleMainPageState extends State<SampleMainPage> {
                   onPressed: () async {
                     final db = await DBService().db;
                     await db.rawInsert(event.qInsert(), [widget.id, event.id_, eventDate.text]);
-                    setState(() {});
                     if (!context.mounted) return;
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(true);
                   },
                 ),
               )
@@ -685,7 +578,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
     );
   }
 
-  Map<String, dynamic> potMap(SampleDetails sample) {
+  Map<String, dynamic> _potMap(SampleDetails sample) {
     return {
       'material': sample.material,
       'shape': sample.shape,
@@ -694,34 +587,25 @@ class _SampleMainPageState extends State<SampleMainPage> {
     };
   }
 
-  List<Center> createSoilGrid() {
+  List<Center> _createSoilGrid(Soil? soil) {
     if (soil == null) {
       return <Center>[const Center(child: Text('N/A'),),];
     } else {
-      final List soilComponents = soil!.getSortedSoilComponents();
+      final List soilComponents = soil.getSortedSoilComponents();
 
       return List.generate(soilComponents.length, (index) {
         return Center(
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: '${Soil.mapComponentsNames(
-                      soilComponents[index].key)}: ',
-                  style: keywordStyle,
-                ),
-                TextSpan(
-                  text: soilComponents[index].value.toString(),
-                ),
-              ],
-            ),
+          child: createKeyValueItem(
+            '${Soil.mapComponentsNames(soilComponents[index].key)}: ',
+            soilComponents[index].value.toString(),
+            textAlign: TextAlign.left
           ),
         );
       });
     }
   }
 
-  Future<num> calculateWateringFrequency(int sampleId) async {
+  Future<num> _calculateWateringFrequency(int sampleId) async {
     final db = await DBService().db;
     const query = '''
       SELECT 
@@ -729,7 +613,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
         MIN([date]) AS min_date,
         COUNT(*) AS count
       FROM [Events]
-      WHERE [id] = ?1 AND [event] = "water";
+      WHERE [id] = ?1 AND [event] = 'water';
     ''';
     final result = await db.rawQuery(query, [sampleId]);
 
@@ -737,11 +621,35 @@ class _SampleMainPageState extends State<SampleMainPage> {
       final maxDate = DateTime.parse(result.first['max_date'] as String);
       final minDate = DateTime.parse(result.first['min_date'] as String);
       final count = result.first['count'] as int;
-      return maxDate.difference(minDate).inDays / count;
+      return maxDate.difference(minDate).inDays / (count - 1);
     }
 
-    return 0; // Return 0 if no data or only one entry
+    return 0.0; // Return 0 if no data or only one entry
   }
+
+  Future<SamplePageData> _fetchPageData(int sampleId) async {
+    // Fetch all data in parallel for better performance
+    final results = await Future.wait([
+      fetchSampleData(sampleId),
+      _fetchWateringDates(sampleId),
+      _calculateWateringFrequency(sampleId),
+    ]);
+
+    final sample = results[0] as SampleDetails;
+    final wateringDates = results[1] as List<DateTime>;
+    final wateringFrequency = results[2] as double;
+
+    Soil? soil;
+    if (sample.soil != null) {
+      soil = await fetchSoil(sample.soil!);
+    }
+
+    return SamplePageData(
+      sampleDetails: sample,
+      soil: soil,
+      wateringDates: wateringDates,
+      wateringFrequency: wateringFrequency,
+    );
+  }
+
 }
-
-

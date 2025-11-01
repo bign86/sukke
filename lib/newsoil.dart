@@ -84,7 +84,7 @@ class _NewSoilPageState extends State<NewSoilPage> {
   }
 
   List<Widget> formsList() {
-    List<Widget> l = [box5];
+    List<Widget> l = [vBox5];
     for (MapEntry e in Soil.componentsNames.entries) {
       l.add(
         Row(
@@ -118,7 +118,7 @@ class _NewSoilPageState extends State<NewSoilPage> {
           ],
         )
       );
-      l.add(box5);
+      l.add(vBox5);
     }
     return l;
   }

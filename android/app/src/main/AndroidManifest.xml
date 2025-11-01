@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bign86.sukke"
-    android:versionCode="v0.1.6">
+    android:versionCode="v0.1.7">
     <application
         android:label="sukke"
         android:name="${applicationName}"

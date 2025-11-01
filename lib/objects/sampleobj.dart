@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:sukke/db.dart';
 import 'package:sukke/objects/plantobj.dart';
@@ -38,6 +37,7 @@ class SampleDetails {
   final bool fromSeed;
   final bool fromCutting;
   final String? notes;
+  final String? fieldNumber;
   final String? species;
   final String? commonName;
   final Needs wateringNeeds;
@@ -72,6 +72,7 @@ class SampleDetails {
     required this.fromSeed,
     required this.fromCutting,
     this.notes,
+    this.fieldNumber,
     this.species,
     this.commonName,
     required this.wateringNeeds,
@@ -125,7 +126,8 @@ class SampleDetails {
       fertilize = item["fertilize"],
       fertilizeDelta = item["fertilizeDelta"],
       pests = item["pests"],
-      pestsDelta = item["pestsDelta"];
+      pestsDelta = item["pestsDelta"],
+      fieldNumber = item["fieldNumber"];
 
   Map<String, Object> toMap() {
     return {'id': id, 'plant': plant};
@@ -143,6 +145,7 @@ class SampleDetails {
 		Sa.[id], Sa.[plant], Sa.[soil], Sa.[location], Sa.[born],
 		Sa.[crested], Sa.[variegated], Sa.[grafted], Sa.[monstrous],
 		Sa.[bought], Sa.[fromSeed], Sa.[fromCutting], Sa.[notes],
+		Sa.[fieldNumber],
 		Pl.[species], Pl.[commonName], Pl.[wateringNeeds],
 		Pl.[lightNeeds], Pl.[TMin], Pl.[cultivar], Pl.[variant],
 		Po.[material], Po.[shape], Po.[deep], Po.[size],
@@ -156,6 +159,7 @@ class SampleDetails {
   ''';
 }
 
+/*
 class Sample {
   final int id;
   final int plant;
@@ -219,6 +223,7 @@ class Sample {
     return 'Sample{id: $id, plant: $plant, pot: $pot}';
   }
 }
+*/
 
 Future<SampleDetails> fetchSampleData(int sampleId) async {
   final db = await DBService().db;
@@ -243,14 +248,15 @@ Future<Null> newSampleToDB(Map<String, dynamic> newFields) async {
   String newSampleQuery = '''
     INSERT INTO [Sample]
     ([id], [plant], [pot], [born], [crested], [variegated],
-    [grafted], [monstrous], [bought], [fromSeed], [fromCutting])
-    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11);
+    [grafted], [monstrous], [bought], [fromSeed], [fromCutting],
+    [fieldNumber])
+    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12);
     ''';
   final List<dynamic> arguments = <dynamic>[
     sampleId, newFields['plant'], potId, newFields['born'],
     newFields['crested'], newFields['variegated'], newFields['grafted'],
     newFields['monstrous'], newFields['bought'], newFields['fromSeed'],
-    newFields['fromCutting']
+    newFields['fromCutting'], newFields['fieldNumber']
   ];
   await db.rawInsert(newSampleQuery, arguments);
 
@@ -265,10 +271,10 @@ Future<Null> newSampleToDB(Map<String, dynamic> newFields) async {
 Future<Null> updateSample(int sampleId, Map<String, dynamic> newFields) async {
   String query = '''
     UPDATE [Sample] SET
-    [born] = ?1, [bought] = ?2, [fromSeed] = ?3, [fromCutting] = ?4
+    [born] = ?1, [bought] = ?2, [fromSeed] = ?3, [fromCutting] = ?4,
     [crested] = ?5, [variegated] = ?6, [grafted] = ?7, [monstrous] = ?8,
-    [location] = ?9
-    WHERE [id] = ?10;
+    [location] = ?9, [fieldNumber] = ?10
+    WHERE [id] = ?11;
     ''';
   final List arguments = [
     newFields['born'] as int,
@@ -279,7 +285,8 @@ Future<Null> updateSample(int sampleId, Map<String, dynamic> newFields) async {
     newFields['variegated'] ? 1 : 0,
     newFields['grafted'] ? 1 : 0,
     newFields['monstrous'] ? 1 : 0,
-    newFields['location'] as String,
+    newFields['location'] as String?,
+    newFields['fieldNumber'] as String?,
     sampleId,
   ];
   final db = await DBService().db;
