@@ -346,12 +346,13 @@ class _PlantMainPageState extends State<PlantMainPage> {
   }
 
   void _navigateToTextEditPage(BuildContext context, Plant data, String title, String fieldName, String? text) async {
-    final newText = await Navigator.push(
+    var newText = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => TextEditPage(title: title, text: text ?? "-")
+          builder: (context) => TextEditPage(title: title, text: text ?? "")
       ),
     );
+    newText = newText?.trim();
 
     if (newText != null) {
       await _updateTextField(data, fieldName, newText);

@@ -216,9 +216,16 @@ Future<Null> updatePlantInformation(Map<String, dynamic> newFields, int id) asyn
     setField.add('[synonyms] = ?$pos');
   }
   if (newFields.containsKey('countries')) {
-    List<String> countries = newFields['countries']
-        .map<String>((DropdownItem c) => c.label.toString())
-        .toList();
+    // List<String> countries = newFields['countries']
+    //  .map<String>((DropdownItem c) => c.label.toString())
+    //  .toList();
+    List<String> countries = (newFields['countries'] as List).map<String>((item) {
+      if (item is DropdownItem) {
+        return item.label.toString();
+      }
+      return item.toString();
+    }).toList();
+
     arguments.add(jsonEncode(countries));
     final int pos = arguments.length;
     setField.add('[countries] = ?$pos');
@@ -227,7 +234,7 @@ Future<Null> updatePlantInformation(Map<String, dynamic> newFields, int id) asyn
     setField.add('[cultivar] = ${newFields['cultivar'] ? 1 : 0}');
   }
   if (newFields.containsKey('commonName')) {
-    setField.add('[commonName] = "${newFields['commonName']}"');
+    setField.add('[commonName] = "${newFields['commonName'].trim()}"');
   }
   if (newFields.containsKey('growthRate')) {
     setField.add('[growthRate] = ${newFields['growthRate'].value}');

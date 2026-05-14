@@ -27,6 +27,7 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
   late Future<List<SampleListItem>> _futureSampleList;
   late TextEditingController searchController;
   Timer? _debounce;
+  List<SampleListItem>? _cachedList;
 
   @override
   void initState() {
@@ -92,10 +93,9 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
                     builder: (context) => const SampleAddPage()
                 ),
               );
+              if (!mounted) return;
               searchController.text = '';
-              Timer(const Duration(milliseconds: 200), () {
-                _refreshData();
-              });
+              _refreshData();
             },
           ),
           IconButton(
@@ -181,13 +181,20 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
               child: FutureBuilder(
                 future: _futureSampleList,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasData) {
-                    return summaryTable(snapshot.data!);
-                  } else {
-                    return const Text("No data available");
+
+                  if (snapshot.hasData) {
+                    _cachedList = snapshot.data;
                   }
+
+                  if (_cachedList != null) {
+                    return summaryTable(_cachedList!); // Show existing data even if loading
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return const Text("No data available");
                 },
               ),
             ),
@@ -199,9 +206,11 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
 
   Widget summaryTable(List<SampleListItem> data) {
     return CupertinoScrollbar(
-      child: ListView(
+      child: ListView.builder(
         padding: padLR8,
-        children: data.map((sample) => summaryRow(sample)).toList(),
+        itemCount: data.length,
+        itemBuilder: (context, index) => summaryRow(data[index]),
+        //children: data.map((sample) => summaryRow(sample)).toList(),
       ),
     );
   }
@@ -215,10 +224,9 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
             builder: (context) => SampleMainPage(id: sample.id)
           ),
         );
+        if (!mounted) return;
         searchController.text = '';
-        Timer(const Duration(milliseconds: 200), () {
-          _refreshData();
-        });
+        _refreshData();
       },
       child: Row(
         children: <Widget>[
@@ -241,16 +249,22 @@ class _SampleSummaryPage extends State<SampleSummaryPage> {
 
   Future<List<SampleListItem>> _fetchSamples(String partialSearch) async {
     var query = 'SELECT [id], [name] FROM [Summary]';
+    List<dynamic> args = [];
+
+
     if (partialSearch.isNotEmpty) {
-      query += '''
-        WHERE [name] LIKE '%$partialSearch%'
-        OR [id] LIKE '%$partialSearch%'
-      ''';
+      //query += '''
+      //  WHERE [name] LIKE '%$partialSearch%'
+      //  OR [id] LIKE '%$partialSearch%'
+      //''';
+      query += ' WHERE [name] LIKE ? OR [id] LIKE ?';
+      args.add('%$partialSearch%');
+      args.add('%$partialSearch%');
     }
     query += ' ORDER BY [name];';
 
     final db = await DBService().db;
-    final maps = await db.rawQuery(query);
+    final maps = await db.rawQuery(query, args);
     return maps.map((e) => SampleListItem.fromMap(e)).toList();
   }
 }

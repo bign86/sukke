@@ -269,11 +269,18 @@ Future<SnackBar> substituteDB() async {
   // If a file has been picked
   if (result != null) {
     File newDB = File(result.files.single.path!);
-    final dbPath = DBService().path();
 
     try {
+      final dbService = DBService();
+      final String? dbPath = dbService.path();
+
+      if (dbPath == null) throw Exception("Database path not found");
+
+      // Close the existing connection before file operations
+      await dbService.close();
+
       // If the DB exists eliminate it and substitute
-      if (await databaseExists(dbPath!)) {
+      if (await databaseExists(dbPath)) {
         await deleteDatabase(dbPath);
         await newDB.copy(dbPath);
 

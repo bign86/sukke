@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
 import 'package:sukke/constants.dart';
 
 class DBService {
@@ -17,47 +16,67 @@ class DBService {
   Database? _database;
   String? _path;
 
+  Completer<Database>? _dbOpenCompleter;
+
   String? path() => _path;
 
   Future<Database> get db async {
-    if (_database != null) {
+    // If _database was closed or never opened, it will be null
+    if (_database != null && _database!.isOpen) {
       return _database!;
     }
 
-    // if _database is null we instantiate it
-    _database = await _initDB();
+    // If already opening, wait for that future to complete
+    if (_dbOpenCompleter != null && !_dbOpenCompleter!.isCompleted) {
+      return _dbOpenCompleter!.future;
+    }
+
+    _dbOpenCompleter = Completer<Database>();
+
+    try {
+      _database = await _initDB();
+      _dbOpenCompleter!.complete(_database);
+    } catch (e) {
+      _dbOpenCompleter!.completeError(e);
+      rethrow;
+    }
+
     return _database!;
   }
 
+  Future<void> close() async {
+    if (_database != null && _database!.isOpen) {
+      await _database!.close();
+      // Reset the reference to null so 'get db' knows to re-init
+      _database = null;
+      _dbOpenCompleter = null;
+    }
+  }
+
   Future<Database> _initDB() async {
-    final path = join(await getDatabasesPath(), dbName);
-    final exists = await databaseExists(path);
-    _path = path;
+    final dbPath = join(await getDatabasesPath(), dbName);
+    final exists = await databaseExists(dbPath);
+    _path = dbPath;
 
     if (!exists) {
       // Make sure the parent directory exists
       try {
-        await Directory(dirname(path)).create(recursive: true);
+        await Directory(dirname(dbPath)).create(recursive: true);
       } catch (_) {}
 
-      // Copy from asset
-      ByteData data = await rootBundle.load(url.join(assetsFolder, dbName));
-      List<int> bytes =
-      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      try {
+        // Copy from asset
+        ByteData data = await rootBundle.load(url.join(assetsFolder, dbName));
+        List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
 
-      // Write and flush the bytes written
-      await File(path).writeAsBytes(bytes, flush: true);
-    } /*else {
-      // Copy from asset
-      ByteData data = await rootBundle.load(url.join("assets/", "plants.db"));
-      List<int> bytes =
-      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+        // Write and flush the bytes written
+        await File(dbPath).writeAsBytes(bytes, flush: true);
+      } catch (e) {
+        throw Exception("Failed to copy initial database: $e");
+      }
+    }
 
-      // Write and flush the bytes written
-      await File(path).writeAsBytes(bytes, flush: true);
-    }*/
-
-    return await openDatabase(path);
+    return await openDatabase(dbPath);
   }
 }
 
@@ -69,12 +88,14 @@ Future<int> getMaxId(String object) async {
   final query = '''
   SELECT MAX(s.[valueNum], m.[id]) AS 'maxId'
   FROM [System] AS s
-  JOIN [Metadata] AS m
-  ON s.[key] = m.[object]
+  LEFT JOIN [Metadata] AS m ON s.[key] = m.[object]
   WHERE s.[key] = ?1;
   ''';
 
-  final map = await db.rawQuery(query, [object]);
-  return map[0]['maxId'] as int;
+  final List<Map<String, dynamic>> results = await db.rawQuery(query, [object]);
+  if (results.isNotEmpty && results.first['maxId'] != null) {
+    return results.first['maxId'] as int;
+  }
+  return 0;
 }
 

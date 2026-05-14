@@ -45,6 +45,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
   TextEditingController eventDate = TextEditingController();
   List<DateTime>? selectedDates;
   late Future<SamplePageData> _futureSamplePageData;
+  SamplePageData? _cachedData;
 
   @override
   void initState() {
@@ -66,8 +67,8 @@ class _SampleMainPageState extends State<SampleMainPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.remove_circle_outline),
-            onPressed: () {
-              showDialog<bool>(
+            onPressed: () async {
+              final bool? confirmed = await showDialog<bool>(
                 // Store a local reference to the context as the async
                 // operation might occur after the widget is disposed
                 context: context,
@@ -76,28 +77,33 @@ class _SampleMainPageState extends State<SampleMainPage> {
                   content: const Text('Vuoi davvero cancellare questo campione?'),
                   actions: [
                     ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context, false);
-                        },
+                        onPressed: () => Navigator.pop(context, false),
                         child: const Text('Annulla')
                     ),
                     ElevatedButton(
-                        onPressed: () {
-                          deleteSample(widget.id);
-                          Navigator.pop(context, true);
-                        },
+                        onPressed: () => Navigator.pop(context, true),
                         child: const Text('Cancella!')
                     ),
                   ],
                 ),
-              ).then((deleted) {
-                if (!context.mounted) return;
-                if (deleted == true) {
+              );
+
+              if (confirmed == true) {
+                try {
+                  await deleteSample(widget.id);
+                  if (!context.mounted) return;
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text("Errore durante la cancellazione: $e")),
+                    );
+                  }
                 }
-              });
+              }
             },
           ),
         ],
@@ -106,19 +112,31 @@ class _SampleMainPageState extends State<SampleMainPage> {
         child: FutureBuilder<SamplePageData>(
           future: _futureSamplePageData,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return const Text('Future creation error'); // error
-              } else if (snapshot.hasData) {
-                return sampleDetailsPage(snapshot.data!, widget.id);
-              } else {
-                return const Text("No data available");
-              }
-            } else {
-              return const Text('Error'); // error
+            // If we have new data, update the cache
+            if (snapshot.hasData) {
+              _cachedData = snapshot.data;
             }
+
+            // If there's an error and no cache, show error
+            if (snapshot.hasError && _cachedData == null) {
+              return Center(child: Text('Errore: ${snapshot.error}'));
+            }
+
+            // If we are waiting and have NO cache, show the spinner (Initial Load)
+            if (snapshot.connectionState == ConnectionState.waiting && _cachedData == null) {
+              return const CircularProgressIndicator();
+            }
+
+            // Build the page using the cached data
+            if (_cachedData != null) {
+              return sampleDetailsPage(_cachedData!, widget.id);
+            }
+
+            if (snapshot.hasError) {
+              return const Text('Future creation error'); // error
+            }
+
+            return const Center(child: Text("Nessun dato disponibile"));
           },
         ),
       ),
@@ -164,6 +182,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
                     builder: (context) => SampleEditPage(data: data)
                   ),
                 );
+                if (!mounted) return;
                 _refreshData();
               },
             ),
@@ -293,7 +312,7 @@ class _SampleMainPageState extends State<SampleMainPage> {
                   MaterialPageRoute(
                       builder: (context) => TextEditPage(title: 'Note', text: data.notes ?? "-")),
                 ).then( (newText) async {
-                  await updateSampleNotes(widget.id, newText);
+                  await updateSampleNotes(widget.id, newText.trim());
                   if (!mounted) return;
                   _refreshData();
                 });
@@ -382,15 +401,26 @@ class _SampleMainPageState extends State<SampleMainPage> {
               },
             ),
           ),
-          GridView.count(
+          // Replace the GridView block with this:
+          if (soil != null)
+            Padding(
+              padding: padLR12,
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                alignment: WrapAlignment.center,
+                children: _createSoilGrid(soil),
+              ),
+            ),
+          //GridView.count(
             // crossAxisCount is the number of columns
-            crossAxisCount: 2,
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            childAspectRatio: 5,
+          //  crossAxisCount: 2,
+          //  scrollDirection: Axis.vertical,
+          //  shrinkWrap: true,
+          //  childAspectRatio: 5,
             // This creates two columns with two items in each column
-            children: _createSoilGrid(soil),
-          ),
+          //  children: _createSoilGrid(soil),
+          //),
           vBox5,
           createSectionHeaderText('Eventi'),
           vBox5,

@@ -167,21 +167,24 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
         title: 'Family',
         controller: _formData.family,
         flexText: flexTitle,
-        flexLabel: flexField
+        flexLabel: flexField,
+        readOnly: true
       ),
       vBox5,
       createTextEntryRow(
         title: 'Genus',
         controller: _formData.genus,
         flexText: flexTitle,
-        flexLabel: flexField
+        flexLabel: flexField,
+        readOnly: true
       ),
       vBox5,
       createTextEntryRow(
         title: 'Species',
         controller: _formData.species,
         flexText: flexTitle,
-        flexLabel: flexField
+        flexLabel: flexField,
+        readOnly: true
       ),
       vBox5,
       createTextEntryRow(
@@ -349,7 +352,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
               isSelected: Needs.toList.map((s) => s == _formData.wateringNeeds).toList(),
               onPressed: (int index) {
                 setState(() {
-                  _formData.wateringNeeds = Needs.getSelection(index);
+                  _formData.wateringNeeds = Needs.getSelection(index+1);
                 });
               },
               children: Needs.toList
@@ -373,7 +376,7 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
               isSelected: Needs.toList.map((s) => s == _formData.lightNeeds).toList(),
               onPressed: (int index) {
                 setState(() {
-                  _formData.lightNeeds = Needs.getSelection(index);
+                  _formData.lightNeeds = Needs.getSelection(index+1);
                 });
               },
               children: Needs.toList
@@ -387,21 +390,24 @@ class _PlantAnagraphicEditPageState extends State<PlantAnagraphicEditPage> {
   }
 
   static List<DropdownItem<String>> _getKnownCountries(List<String> selectedCountryCodes) {
-     List<DropdownItem<String>> knownCountries = <DropdownItem<String>>[
+    List<DropdownItem<String>> knownCountries = <DropdownItem<String>>[
       DropdownItem<String>(label: 'Argentina', value: 'Argentina', selected: false),
       DropdownItem<String>(label: 'Bolivia', value: 'Bolivia', selected: false),
       DropdownItem<String>(label: 'Brazil', value: 'Brazil', selected: false),
       DropdownItem<String>(label: 'Canada', value: 'Canada', selected: false),
       DropdownItem<String>(label: 'Chile', value: 'Chile', selected: false),
+      DropdownItem<String>(label: 'India', value: 'India', selected: false),
       DropdownItem<String>(label: 'Madagascar', value: 'Madagascar', selected: false),
       DropdownItem<String>(label: 'Mexico', value: 'Mexico', selected: false),
       DropdownItem<String>(label: 'Namibia', value: 'Namibia', selected: false),
       DropdownItem<String>(label: 'Oman', value: 'Oman', selected: false),
       DropdownItem<String>(label: 'Paraguay', value: 'Paraguay', selected: false),
       DropdownItem<String>(label: 'Peru', value: 'Peru', selected: false),
+      DropdownItem<String>(label: 'Somalia', value: 'Somalia', selected: false),
       DropdownItem<String>(label: 'South Africa', value: 'South Africa', selected: false),
       DropdownItem<String>(label: 'United States', value: 'United States', selected: false),
       DropdownItem<String>(label: 'Uruguay', value: 'Uruguay', selected: false),
+      DropdownItem<String>(label: 'Yemen', value: 'Yemen', selected: false),
     ];
 
     // Loop over knownCountries and set 'selected' to true if the country code
